@@ -1,9 +1,19 @@
-﻿namespace REP2P
+﻿using System;
+
+namespace REP2P
 {
     public class Network
     {
         public NetworkLayer Layer { get; private set; }
-
+        public bool IsHost => Layer.IsHost();
+        public bool IsConnected => Layer.IsConnected();
+        public NetworkConnection Owner => Layer.GetOwner();
+        public NetworkConnection[] Connections => Layer.GetConnections();
+        public Action OnCreatedServer;
+        public Action OnConnected;
+        public Action OnDisconnected;
+        public Action<NetworkConnection> OnClientConnected;
+        public Action<NetworkConnection> OnClientDisconnected;
         private PacketHandler packetHandlerSubscription;
 
         public void Initialize(NetworkLayer layer)
@@ -16,8 +26,6 @@
 
         public void SubscribePacketHandler(PacketHandler packetHandler) => packetHandlerSubscription += packetHandler;
         public void UnSubscribePacketHandler(PacketHandler packetHandler) => packetHandlerSubscription -= packetHandler;
-        public NetworkConnection GetOwner() => Layer.GetOwner();
-        public NetworkConnection[] GetConnections() => Layer.GetConnections();
         public void CreateServer(NetworkCreateServer handle) => Layer.CreateServer(handle);
         public void JoinServer(NetworkJoinServer handle) => Layer.JoinServer(handle);
         public void Disconnect() => Layer.Disconnect();
