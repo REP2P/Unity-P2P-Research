@@ -2,7 +2,7 @@
 
 namespace REP2P.Steam
 {
-    public struct SteamJoinServer : NetworkJoinServer
+    public struct SteamJoinSessionHandle : JoinSessionHandle
     {
         public SteamId lobby;
     }

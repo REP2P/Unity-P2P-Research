@@ -12,3 +12,9 @@ D:\UnityProjects\Unity P2P Research\Core\REP2P\SteamLayer\obj\Release\netstandar
 D:\UnityProjects\Unity P2P Research\Core\REP2P\SteamLayer\obj\Release\netstandard2.0\REP2P.St.32AAB6D1.Up2Date
 D:\UnityProjects\Unity P2P Research\Core\REP2P\SteamLayer\obj\Release\netstandard2.0\REP2P.Steam.dll
 D:\UnityProjects\Unity P2P Research\Core\REP2P\SteamLayer\obj\Release\netstandard2.0\REP2P.Steam.pdb
+D:\UnityProjects\Unity P2P Research\Assets\REP2P\External\Steam\Release\netstandard2.0\REP2P.Steam.deps.json
+D:\UnityProjects\Unity P2P Research\Assets\REP2P\External\Steam\Release\netstandard2.0\REP2P.Steam.dll
+D:\UnityProjects\Unity P2P Research\Assets\REP2P\External\Steam\Release\netstandard2.0\REP2P.Steam.pdb
+D:\UnityProjects\Unity P2P Research\Assets\REP2P\External\Release\netstandard2.0\REP2P.Steam.deps.json
+D:\UnityProjects\Unity P2P Research\Assets\REP2P\External\Release\netstandard2.0\REP2P.Steam.dll
+D:\UnityProjects\Unity P2P Research\Assets\REP2P\External\Release\netstandard2.0\REP2P.Steam.pdb

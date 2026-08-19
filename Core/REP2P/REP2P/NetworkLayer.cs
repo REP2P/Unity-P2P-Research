@@ -7,13 +7,15 @@
         void Tick();
         NetworkConnection GetOwner();
         NetworkConnection[] GetConnections();
-        void CreateServer(NetworkCreateServer handle);
-        void JoinServer(NetworkJoinServer handle);
+        void CreateSession(CreateSessionHandle handle);
+        void JoinSession(JoinSessionHandle handle);
         void Disconnect();
         void SendPacketToTarget(string connectionId, NetworkPacket message, PacketSendMode sendMode = PacketSendMode.Unreliable);
         void SendPacketToAll(NetworkPacket message, PacketSendMode sendMode = PacketSendMode.Unreliable);
 
         bool IsHost();
         bool IsConnected();
+        SessionState GetSessionState();
+        void Disconnect(NetworkConnection connection);
     }
 }

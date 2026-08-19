@@ -4,7 +4,7 @@ using System.Text;
 
 namespace REP2P
 {
-    public interface NetworkJoinServer
+    public interface CreateSessionHandle
     {
     }
 }

@@ -4,7 +4,9 @@ using System.Text;
 
 namespace REP2P
 {
-    public interface NetworkCreateServer
+    public struct SessionState
     {
+        public int connectionCount;
+        public int maxConnections;
     }
 }

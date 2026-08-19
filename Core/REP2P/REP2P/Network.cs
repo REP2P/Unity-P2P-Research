@@ -9,6 +9,7 @@ namespace REP2P
         public bool IsConnected => Layer.IsConnected();
         public NetworkConnection Owner => Layer.GetOwner();
         public NetworkConnection[] Connections => Layer.GetConnections();
+        public SessionState SessionState => Layer.GetSessionState();
         public Action OnCreatedServer;
         public Action OnConnected;
         public Action OnDisconnected;
@@ -26,9 +27,10 @@ namespace REP2P
 
         public void SubscribePacketHandler(PacketHandler packetHandler) => packetHandlerSubscription += packetHandler;
         public void UnSubscribePacketHandler(PacketHandler packetHandler) => packetHandlerSubscription -= packetHandler;
-        public void CreateServer(NetworkCreateServer handle) => Layer.CreateServer(handle);
-        public void JoinServer(NetworkJoinServer handle) => Layer.JoinServer(handle);
+        public void CreateSession(CreateSessionHandle handle) => Layer.CreateSession(handle);
+        public void JoinSession(JoinSessionHandle handle) => Layer.JoinSession(handle);
         public void Disconnect() => Layer.Disconnect();
+        public void Disconnect(NetworkConnection connection) => Layer.Disconnect(connection);
         public void Send(NetworkConnection connection, NetworkPacket packet, PacketSendMode sendMode = PacketSendMode.Unreliable) => Send(connection.connectionId, packet, sendMode);
         public void Send(string connectionId, NetworkPacket packet, PacketSendMode sendMode = PacketSendMode.Unreliable) => Layer.SendPacketToTarget(connectionId, packet, sendMode);
         public void SendToAll(NetworkPacket packet, PacketSendMode sendMode = PacketSendMode.Unreliable) => Layer.SendPacketToAll(packet, sendMode);

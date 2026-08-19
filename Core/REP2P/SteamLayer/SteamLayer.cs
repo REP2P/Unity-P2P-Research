@@ -11,9 +11,9 @@ namespace REP2P.Steam
     {
         private Network network;
         private Lobby? lobby;
-        public async void CreateServer(NetworkCreateServer baseHandle)
+        public async void CreateSession(CreateSessionHandle baseHandle)
         {
-            SteamCreateServer handle = (SteamCreateServer)baseHandle;
+            SteamCreateSessionHandle handle = (SteamCreateSessionHandle)baseHandle;
             Task<Lobby?> task = SteamMatchmaking.CreateLobbyAsync(handle.maxMembers);
             await task;
             if (task.IsCompleted)
@@ -43,6 +43,7 @@ namespace REP2P.Steam
 
         public void Deinitialize()
         {
+            SteamNetworking.AllowP2PPacketRelay(false);
             SteamMatchmaking.OnLobbyCreated -= OnLobbyCreated;
             SteamMatchmaking.OnLobbyEntered -= OnLobbyEntered;
             SteamMatchmaking.OnLobbyMemberJoined -= OnLobbyMemberJoined;
@@ -70,6 +71,7 @@ namespace REP2P.Steam
         {
             connections = new Dictionary<SteamId, NetworkConnection>();
             this.network = network;
+            SteamNetworking.AllowP2PPacketRelay(true);
             SteamMatchmaking.OnLobbyCreated += OnLobbyCreated;
             SteamMatchmaking.OnLobbyEntered += OnLobbyEntered;
             SteamMatchmaking.OnLobbyMemberJoined += OnLobbyMemberJoined;
@@ -128,9 +130,9 @@ namespace REP2P.Steam
             network.OnClientConnected?.Invoke(connection);
         }
 
-        public async void JoinServer(NetworkJoinServer baseHandle)
+        public async void JoinSession(JoinSessionHandle baseHandle)
         {
-            SteamJoinServer handle = (SteamJoinServer)baseHandle;
+            SteamJoinSessionHandle handle = (SteamJoinSessionHandle)baseHandle;
             Task<Lobby?> task = SteamMatchmaking.JoinLobbyAsync(handle.lobby);
             await task;
             if(task.IsCompleted)
@@ -193,5 +195,15 @@ namespace REP2P.Steam
         public bool IsHost() => lobby.Value.IsOwnedBy(SteamClient.SteamId);
 
         public bool IsConnected() => isConnected;
+
+        public SessionState GetSessionState()
+        {
+            return new SessionState() { connectionCount = lobby.Value.MemberCount, maxConnections = lobby.Value.MaxMembers };
+        }
+
+        public void Disconnect(NetworkConnection connection)
+        {
+            throw new Exception("Valve does not support remotely disconnecting other members");
+        }
     }
 }
