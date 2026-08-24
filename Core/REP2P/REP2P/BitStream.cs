@@ -4,13 +4,10 @@ using System.Text;
 
 namespace REP2P
 {
-    // https://github.com/RugbugRedfern/Mycelium-Networking-For-Content-Warning/blob/master/MyceliumNetworkingForCW/Stream.cs
-    // https://github.com/tom-weiland/tcp-udp-networking/blob/master/UnityGameServer/Assets/Scripts/Stream.cs
+    // Source https://github.com/tom-weiland/tcp-udp-networking/blob/master/GameServer/GameServer/Packet.cs
+    // License https://github.com/tom-weiland/tcp-udp-networking/blob/master/Licence.txt
     public class BitStream : IDisposable
     {
-        // Max size of a Stream, in bytes
-        public static int MaxSize { get; set; } = ushort.MaxValue;
-
         private List<byte> buffer;
         private byte[] readableBuffer;
         private int readPos;
@@ -28,55 +25,61 @@ namespace REP2P
         /// <summary>Creates a new Stream with data.</summary>
         public static BitStream Create(byte[] data)
         {
-            return new BitStream().SetBytes(data);
+            BitStream stream = Create();
+            stream.SetBytes(data);
+            return stream;
+        }
+        public NetworkPacket ToPacket(int packetId)
+        {
+            return NetworkPacket.Create(packetId, ToArray());
         }
 
         #region Functions
-        /// <summary>Sets the Stream's content and prepares it to be read.</summary>
-        /// <param name="data">The bytes to add to the Stream.</param>
-        public BitStream SetBytes(byte[] data)
+        /// <summary>Sets the packet's content and prepares it to be read.</summary>
+        /// <param name="_data">The bytes to add to the packet.</param>
+        public void SetBytes(byte[] _data)
         {
-            buffer.AddRange(data);
+            Write(_data);
             readableBuffer = buffer.ToArray();
-            return this;
         }
 
-        /// <summary>Inserts the length of the Stream's content at the start of the buffer.</summary>
-        public BitStream WriteLength()
+        /// <summary>Inserts the length of the packet's content at the start of the buffer.</summary>
+        public void WriteLength()
         {
-            buffer.InsertRange(0, BitConverter.GetBytes(buffer.Count)); // Insert the byte length of the Stream at the very beginning
-            return this;
+            buffer.InsertRange(0, BitConverter.GetBytes(buffer.Count)); // Insert the byte length of the packet at the very beginning
         }
 
-        /// <summary>Gets the Stream's content in array form.</summary>
+        /// <summary>Inserts the given int at the start of the buffer.</summary>
+        /// <param name="_value">The int to insert.</param>
+        public void InsertInt(int _value)
+        {
+            buffer.InsertRange(0, BitConverter.GetBytes(_value)); // Insert the int at the start of the buffer
+        }
+
+        /// <summary>Gets the packet's content in array form.</summary>
         public byte[] ToArray()
         {
             readableBuffer = buffer.ToArray();
             return readableBuffer;
         }
 
-        public NetworkPacket ToPacket(int packetId)
-        {
-            return NetworkPacket.Create(packetId, ToArray());
-        }
-
-        /// <summary>Gets the length of the Stream's content.</summary>
+        /// <summary>Gets the length of the packet's content.</summary>
         public int Length()
         {
             return buffer.Count; // Return the length of buffer
         }
 
-        /// <summary>Gets the length of the unread data contained in the Stream.</summary>
+        /// <summary>Gets the length of the unread data contained in the packet.</summary>
         public int UnreadLength()
         {
             return Length() - readPos; // Return the remaining length (unread)
         }
 
-        /// <summary>Resets the Stream instance to allow it to be reused.</summary>
-        /// <param name="shouldReset">Whether or not to reset the Stream.</param>
-        public BitStream Reset(bool shouldReset = true)
+        /// <summary>Resets the packet instance to allow it to be reused.</summary>
+        /// <param name="_shouldReset">Whether or not to reset the packet.</param>
+        public void Reset(bool _shouldReset = true)
         {
-            if (shouldReset)
+            if (_shouldReset)
             {
                 buffer.Clear(); // Clear buffer
                 readableBuffer = null;
@@ -86,124 +89,77 @@ namespace REP2P
             {
                 readPos -= 4; // "Unread" the last read int
             }
-            return this;
         }
         #endregion
 
         #region Write Data
-        /// <summary>Adds a byte to the Stream.</summary>
-        /// <param name="value">The byte to add.</param>
-        public BitStream Write(byte value)
+        /// <summary>Adds a byte to the packet.</summary>
+        /// <param name="_value">The byte to add.</param>
+        public void Write(byte _value)
         {
-            buffer.Add(value);
-            return this;
+            buffer.Add(_value);
         }
-        /// <summary>Adds an array of bytes to the Stream.</summary>
-        /// <param name="value">The byte array to add.</param>
-        public BitStream Write(byte[] value)
+        /// <summary>Adds an array of bytes to the packet.</summary>
+        /// <param name="_value">The byte array to add.</param>
+        public void Write(byte[] _value, bool _writeLength = true)
         {
-            Write(value.Length);
-            buffer.AddRange(value);
-            return this;
+            if(_writeLength) Write(_value.Length);
+            buffer.AddRange(_value);
         }
-        /// <summary>Adds an array of bytes to the Stream.</summary>
-        /// <param name="value">The byte array to add.</param>
-        public BitStream Write(bool[] value)
+        /// <summary>Adds a short to the packet.</summary>
+        /// <param name="_value">The short to add.</param>
+        public void Write(short _value)
         {
-            Write(value.Length);
-            byte[] bytes = new byte[value.Length];
-            for (int i = 0; i < bytes.Length; i++)
-            {
-                bytes[i] = value[i] ? (byte)1 : (byte)0;
-            }
-            buffer.AddRange(bytes);
-            return this;
+            buffer.AddRange(BitConverter.GetBytes(_value));
         }
-        /// <summary>Adds a short to the Stream.</summary>
-        /// <param name="value">The short to add.</param>
-        public BitStream Write(short value)
+        /// <summary>Adds an int to the packet.</summary>
+        /// <param name="_value">The int to add.</param>
+        public void Write(int _value)
         {
-            buffer.AddRange(BitConverter.GetBytes(value));
-            return this;
+            buffer.AddRange(BitConverter.GetBytes(_value));
         }
-        /// <summary>Adds a ushort to the Stream.</summary>
-        /// <param name="value">The ushort to add.</param>
-        public BitStream Write(ushort value)
+        /// <summary>Adds a long to the packet.</summary>
+        /// <param name="_value">The long to add.</param>
+        public void Write(long _value)
         {
-            buffer.AddRange(BitConverter.GetBytes(value));
-            return this;
+            buffer.AddRange(BitConverter.GetBytes(_value));
         }
-        /// <summary>Adds an int to the Stream.</summary>
-        /// <param name="value">The int to add.</param>
-        public BitStream Write(int value)
+        /// <summary>Adds a float to the packet.</summary>
+        /// <param name="_value">The float to add.</param>
+        public void Write(float _value)
         {
-            buffer.AddRange(BitConverter.GetBytes(value));
-            return this;
+            buffer.AddRange(BitConverter.GetBytes(_value));
         }
-        /// <summary>Adds a uint to the Stream.</summary>
-        /// <param name="value">The uint to add.</param>
-        public BitStream Write(uint value)
+        /// <summary>Adds a bool to the packet.</summary>
+        /// <param name="_value">The bool to add.</param>
+        public void Write(bool _value)
         {
-            buffer.AddRange(BitConverter.GetBytes(value));
-            return this;
+            buffer.AddRange(BitConverter.GetBytes(_value));
         }
-        /// <summary>Inserts the given int at the start of the Stream (after the header).</summary>
-        /// <param name="value">The int to insert.</param>
-        public BitStream InsertInt(int value)
+        /// <summary>Adds a string to the packet.</summary>
+        /// <param name="_value">The string to add.</param>
+        public void Write(string _value)
         {
-            buffer.InsertRange(1, BitConverter.GetBytes(value));
-            return this;
-        }
-        /// <summary>Adds a long to the Stream.</summary>
-        /// <param name="value">The long to add.</param>
-        public BitStream Write(long value)
-        {
-            buffer.AddRange(BitConverter.GetBytes(value));
-            return this;
-        }
-        /// <summary>Adds a ulong to the Stream.</summary>
-        /// <param name="value">The ulong to add.</param>
-        public BitStream Write(ulong value)
-        {
-            buffer.AddRange(BitConverter.GetBytes(value));
-            return this;
-        }
-        /// <summary>Adds a float to the Stream.</summary>
-        /// <param name="value">The float to add.</param>
-        public BitStream Write(float value)
-        {
-            buffer.AddRange(BitConverter.GetBytes(value));
-            return this;
-        }
-        /// <summary>Adds a bool to the Stream.</summary>
-        /// <param name="value">The bool to add.</param>
-        public BitStream Write(bool value)
-        {
-            buffer.AddRange(BitConverter.GetBytes(value));
-            return this;
-        }
-        /// <summary>Adds a string to the Stream.</summary>
-        /// <param name="value">The string to add.</param>
-        public BitStream Write(string value)
-        {
-            var bytes = Encoding.UTF8.GetBytes(value);
-            Write(bytes.Length); // Add the length of the byte array to the Stream
-            buffer.AddRange(bytes); // Add the string itself
-            return this;
+            Write(_value.Length); // Add the length of the string to the packet
+            buffer.AddRange(Encoding.ASCII.GetBytes(_value)); // Add the string itself
         }
         #endregion
 
         #region Read Data
-        /// <summary>Reads a byte from the Stream.</summary>
-        public byte ReadByte()
+        /// <summary>Reads a byte from the packet.</summary>
+        /// <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
+        public byte ReadByte(bool _moveReadPos = true)
         {
             if (buffer.Count > readPos)
             {
                 // If there are unread bytes
-                byte value = readableBuffer[readPos]; // Get the byte at readPos' position
-                                                      // If moveReadPos is true
-                readPos += 1; // Increase readPos by 1
-                return value; // Return the byte
+                byte _value = readableBuffer[readPos]; // Get the byte at readPos' position
+                if (_moveReadPos)
+                {
+                    // If _moveReadPos is true
+                    readPos += 1; // Increase readPos by 1
+                }
+                return _value; // Return the byte
             }
             else
             {
@@ -211,21 +167,26 @@ namespace REP2P
             }
         }
 
-        /// <summary>Reads an array of bytes from the Stream.</summary>
+        /// <summary>Reads an array of bytes from the packet.</summary>
         public byte[] ReadBytes()
         {
-            int length = ReadInt();
-
-            if (length == 0)
-                return new byte[0];
-
+            return ReadBytes(ReadInt(), true);
+        }
+        /// <summary>Reads an array of bytes from the packet.</summary>
+        /// <param name="_length">The length of the byte array.</param>
+        /// <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
+        public byte[] ReadBytes(int _length, bool _moveReadPos = true)
+        {
             if (buffer.Count > readPos)
             {
                 // If there are unread bytes
-                byte[] value = buffer.GetRange(readPos, length).ToArray(); // Get the bytes at readPos' position with a range of length
-                                                                           // If moveReadPos is true
-                readPos += length; // Increase readPos by length
-                return value; // Return the bytes
+                byte[] _value = buffer.GetRange(readPos, _length).ToArray(); // Get the bytes at readPos' position with a range of _length
+                if (_moveReadPos)
+                {
+                    // If _moveReadPos is true
+                    readPos += _length; // Increase readPos by _length
+                }
+                return _value; // Return the bytes
             }
             else
             {
@@ -233,39 +194,20 @@ namespace REP2P
             }
         }
 
-        public bool[] ReadBools()
+        /// <summary>Reads a short from the packet.</summary>
+        /// <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
+        public short ReadShort(bool _moveReadPos = true)
         {
-            int length = ReadInt();
             if (buffer.Count > readPos)
             {
                 // If there are unread bytes
-                bool[] value = new bool[length];
-                for (int i = 0; i < length; i++)
+                short _value = BitConverter.ToInt16(readableBuffer, readPos); // Convert the bytes to a short
+                if (_moveReadPos)
                 {
-                    byte current = buffer[readPos + i];
-                    value[i] = current == 1;
+                    // If _moveReadPos is true and there are unread bytes
+                    readPos += 2; // Increase readPos by 2
                 }
-
-                readPos += length; // Increase readPos by length
-                return value; // Return the bytes
-            }
-            else
-            {
-                throw new Exception("Could not read value of type 'bool[]'!");
-            }
-        }
-
-
-        /// <summary>Reads a short from the Stream.</summary>
-        public short ReadShort()
-        {
-            if (buffer.Count > readPos)
-            {
-                // If there are unread bytes
-                short value = BitConverter.ToInt16(readableBuffer, readPos); // Convert the bytes to a short
-                                                                             // If moveReadPos is true and there are unread bytes
-                readPos += 2; // Increase readPos by 2
-                return value; // Return the short
+                return _value; // Return the short
             }
             else
             {
@@ -273,33 +215,20 @@ namespace REP2P
             }
         }
 
-        /// <summary>Reads a ushort from the Stream.</summary>
-        public ushort ReadUShort()
+        /// <summary>Reads an int from the packet.</summary>
+        /// <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
+        public int ReadInt(bool _moveReadPos = true)
         {
             if (buffer.Count > readPos)
             {
                 // If there are unread bytes
-                ushort value = BitConverter.ToUInt16(readableBuffer, readPos); // Convert the bytes to a short
-                                                                               // If moveReadPos is true and there are unread bytes
-                readPos += 2; // Increase readPos by 2
-                return value; // Return the short
-            }
-            else
-            {
-                throw new Exception("Could not read value of type 'short'!");
-            }
-        }
-
-        /// <summary>Reads an int from the Stream.</summary>
-        public int ReadInt()
-        {
-            if (buffer.Count > readPos)
-            {
-                // If there are unread bytes
-                int value = BitConverter.ToInt32(readableBuffer, readPos); // Convert the bytes to an int
-                                                                           // If moveReadPos is true
-                readPos += 4; // Increase readPos by 4
-                return value; // Return the int
+                int _value = BitConverter.ToInt32(readableBuffer, readPos); // Convert the bytes to an int
+                if (_moveReadPos)
+                {
+                    // If _moveReadPos is true
+                    readPos += 4; // Increase readPos by 4
+                }
+                return _value; // Return the int
             }
             else
             {
@@ -307,32 +236,20 @@ namespace REP2P
             }
         }
 
-        /// <summary>Reads a uint from the Stream.</summary>
-        public uint ReadUInt()
+        /// <summary>Reads a long from the packet.</summary>
+        /// <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
+        public long ReadLong(bool _moveReadPos = true)
         {
             if (buffer.Count > readPos)
             {
                 // If there are unread bytes
-                uint value = BitConverter.ToUInt32(readableBuffer, readPos); // Convert the bytes to an uint
-                                                                             // If moveReadPos is true
-                readPos += 4; // Increase readPos by 4
-                return value; // Return the uint
-            }
-            else
-            {
-                throw new Exception("Could not read value of type 'uint'!");
-            }
-        }
-
-        /// <summary>Reads a long from the Stream.</summary>
-        public long ReadLong()
-        {
-            if (buffer.Count > readPos)
-            {
-                // If there are unread bytes
-                long value = BitConverter.ToInt64(readableBuffer, readPos); // Convert the bytes to a long
-                readPos += 8; // Increase readPos by 8
-                return value; // Return the long
+                long _value = BitConverter.ToInt64(readableBuffer, readPos); // Convert the bytes to a long
+                if (_moveReadPos)
+                {
+                    // If _moveReadPos is true
+                    readPos += 8; // Increase readPos by 8
+                }
+                return _value; // Return the long
             }
             else
             {
@@ -340,31 +257,20 @@ namespace REP2P
             }
         }
 
-        /// <summary>Reads a ulong from the Stream.</summary>
-        public ulong ReadULong()
+        /// <summary>Reads a float from the packet.</summary>
+        /// <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
+        public float ReadFloat(bool _moveReadPos = true)
         {
             if (buffer.Count > readPos)
             {
                 // If there are unread bytes
-                ulong value = BitConverter.ToUInt64(readableBuffer, readPos); // Convert the bytes to a long
-                readPos += 8; // Increase readPos by 8
-                return value; // Return the ulong
-            }
-            else
-            {
-                throw new Exception("Could not read value of type 'ulong'!");
-            }
-        }
-
-        /// <summary>Reads a float from the Stream.</summary>
-        public float ReadFloat()
-        {
-            if (buffer.Count > readPos)
-            {
-                // If there are unread bytes
-                float value = BitConverter.ToSingle(readableBuffer, readPos); // Convert the bytes to a float
-                readPos += 4; // Increase readPos by 4
-                return value; // Return the float
+                float _value = BitConverter.ToSingle(readableBuffer, readPos); // Convert the bytes to a float
+                if (_moveReadPos)
+                {
+                    // If _moveReadPos is true
+                    readPos += 4; // Increase readPos by 4
+                }
+                return _value; // Return the float
             }
             else
             {
@@ -372,15 +278,20 @@ namespace REP2P
             }
         }
 
-        /// <summary>Reads a bool from the Stream.</summary>
-        public bool ReadBool()
+        /// <summary>Reads a bool from the packet.</summary>
+        /// <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
+        public bool ReadBool(bool _moveReadPos = true)
         {
             if (buffer.Count > readPos)
             {
                 // If there are unread bytes
-                bool value = BitConverter.ToBoolean(readableBuffer, readPos); // Convert the bytes to a bool
-                readPos += 1; // Increase readPos by 1
-                return value; // Return the bool
+                bool _value = BitConverter.ToBoolean(readableBuffer, readPos); // Convert the bytes to a bool
+                if (_moveReadPos)
+                {
+                    // If _moveReadPos is true
+                    readPos += 1; // Increase readPos by 1
+                }
+                return _value; // Return the bool
             }
             else
             {
@@ -388,19 +299,20 @@ namespace REP2P
             }
         }
 
-        /// <summary>Reads a string from the Stream.</summary>
-        public string ReadString()
+        /// <summary>Reads a string from the packet.</summary>
+        /// <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
+        public string ReadString(bool _moveReadPos = true)
         {
             try
             {
-                int length = ReadInt(); // Get the length of the byte array (NOT the length of the string)
-                string value = Encoding.UTF8.GetString(readableBuffer, readPos, length); // Convert the bytes to a string
-                if (value.Length > 0)
+                int _length = ReadInt(); // Get the length of the string
+                string _value = Encoding.ASCII.GetString(readableBuffer, readPos, _length); // Convert the bytes to a string
+                if (_moveReadPos && _value.Length > 0)
                 {
-                    // string is not empty
-                    readPos += length; // Increase readPos by the length of the string
+                    // If _moveReadPos is true string is not empty
+                    readPos += _length; // Increase readPos by the length of the string
                 }
-                return value; // Return the string
+                return _value; // Return the string
             }
             catch
             {
@@ -409,18 +321,13 @@ namespace REP2P
         }
         #endregion
 
-        public int GetSize()
-        {
-            return readableBuffer.Length;
-        }
-
         private bool disposed = false;
 
-        protected virtual void Dispose(bool disposing)
+        protected virtual void Dispose(bool _disposing)
         {
             if (!disposed)
             {
-                if (disposing)
+                if (_disposing)
                 {
                     buffer = null;
                     readableBuffer = null;

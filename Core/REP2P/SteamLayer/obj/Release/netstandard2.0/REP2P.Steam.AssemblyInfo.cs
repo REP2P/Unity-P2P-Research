@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("REP2P.Steam")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+956abc255015d0243403597d4324a2d9a53497cf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+af5e0f4ad445b48315120738dc2b984c6ff54beb")]
 [assembly: System.Reflection.AssemblyProductAttribute("REP2P.Steam")]
 [assembly: System.Reflection.AssemblyTitleAttribute("REP2P.Steam")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

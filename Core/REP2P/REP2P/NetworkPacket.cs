@@ -20,7 +20,9 @@ namespace REP2P
         public static byte[] ToBytes(NetworkPacket packet)
         {
             using (BitStream stream = BitStream.Create()) {
-                return stream.Write(packet.packetId).Write(packet.packetBytes).ToArray();
+                stream.Write(packet.packetId);
+                stream.Write(packet.packetBytes);
+                return stream.ToArray();
             }
         }
 
@@ -28,7 +30,7 @@ namespace REP2P
         {
             using (BitStream stream = BitStream.Create(bytes))
             {
-                return NetworkPacket.Create(stream.ReadInt(), stream.ReadBytes());
+                return Create(stream.ReadInt(), stream.ReadBytes());
             }
         }
     }
