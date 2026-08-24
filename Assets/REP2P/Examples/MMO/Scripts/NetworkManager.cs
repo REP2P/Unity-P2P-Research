@@ -1,11 +1,13 @@
 ﻿using REP2P;
 using REP2P.Steam;
 using Steamworks;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using BitStream = REP2P.BitStream;
 using Text = UnityEngine.UI.Text;
 
 public class NetworkManager : MonoBehaviour
@@ -43,13 +45,10 @@ public class NetworkManager : MonoBehaviour
         switch (packet.packetId)
         {
             case 0:
-                using (MemoryStream ms = new MemoryStream(packet.packetBytes))
+                using (BitStream stream = BitStream.Create(packet.packetBytes))
                 {
-                    using (BinaryReader reader = new BinaryReader(ms))
-                    {
-                        Vector3 position = reader.ReadVector3();
-                        remotePlayers[sender].transform.position = position;
-                    }
+                    Vector3 position = stream.ReadVector3();
+                    remotePlayers[sender].transform.position = position;
                 }      
                 break;
             case 1:
@@ -107,12 +106,10 @@ public class NetworkManager : MonoBehaviour
 
     private void SyncPlayerMovement()
     {
-        using (MemoryStream ms = new MemoryStream()) {
-            using (BinaryWriter writer = new BinaryWriter(ms)) {
-                writer.Write(localPlayerInstance.position);
-                NetworkPacket packet = NetworkPacket.Create(0, ms.ToArray());
-                network.SendToAll(packet);
-            }
+        using (BitStream stream = BitStream.Create()) {
+            stream.Write(localPlayerInstance.position);
+            NetworkPacket packet = NetworkPacket.Create(0, stream.ToArray());
+            network.SendToAll(packet);
         }
     }
 }

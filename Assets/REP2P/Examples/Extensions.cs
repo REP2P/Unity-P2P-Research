@@ -1,16 +1,17 @@
-﻿using System.IO;
+﻿using REP2P;
 using UnityEngine;
+using BitStream = REP2P.BitStream;
 
 public static class BinaryExtensions
 {
-    public static void Write(this BinaryWriter writer, Vector3 value)
+    public static void Write(this BitStream stream, Vector3 value)
     {
-        writer.Write(value.x);
-        writer.Write(value.y);
-        writer.Write(value.z);
+        stream.Write(value.x);
+        stream.Write(value.y);
+        stream.Write(value.z);
     }
-    public static Vector3 ReadVector3(this BinaryReader reader)
+    public static Vector3 ReadVector3(this BitStream stream)
     {
-        return new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+        return new Vector3(stream.ReadFloat(), stream.ReadFloat(), stream.ReadFloat());
     }
 }

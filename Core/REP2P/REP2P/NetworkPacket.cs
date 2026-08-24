@@ -1,43 +1,34 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System;
 
 namespace REP2P
 {
+    [Serializable]
     public struct NetworkPacket
-    {
+    {       
         public int packetId;
         public byte[] packetBytes;
 
         public static NetworkPacket Create(int packetId, byte[] packetBytes)
         {
-            var instance = new NetworkPacket()
+            return new NetworkPacket()
             {
                 packetId = packetId,
                 packetBytes = packetBytes
             };
-            return instance;
         }
 
-        public byte[] ToBytes()
+        public static byte[] ToBytes(NetworkPacket packet)
         {
-            using (MemoryStream stream = new MemoryStream())
-            {
-                using (BinaryWriter writer = new BinaryWriter(stream)) { 
-                    writer.Write(packetId);
-                    writer.Write(packetBytes);
-                    return stream.ToArray();
-                }
+            using (BitStream stream = BitStream.Create()) {
+                return stream.Write(packet.packetId).Write(packet.packetBytes).ToArray();
             }
         }
 
         public static NetworkPacket FromBytes(byte[] bytes)
         {
-            using (MemoryStream stream = new MemoryStream(bytes))
+            using (BitStream stream = BitStream.Create(bytes))
             {
-                using (BinaryReader reader = new BinaryReader(stream))
-                {                  
-                    return Create(reader.ReadInt32(), reader.ReadBytes(bytes.Length));
-                }
+                return NetworkPacket.Create(stream.ReadInt(), stream.ReadBytes());
             }
         }
     }

@@ -144,18 +144,18 @@ namespace REP2P.Steam
             }
         }
 
-        public void SendPacketToAll(NetworkPacket message, PacketSendMode sendMode = PacketSendMode.Unreliable)
+        public void SendPacketToAll(NetworkPacket packet, PacketSendMode sendMode = PacketSendMode.Unreliable)
         {
             foreach (var connection in connections.Keys)
             {
-                SendPacketToTarget(connection.ToString(), message, sendMode);
+                SendPacketToTarget(connection.ToString(), packet, sendMode);
             }
         }
 
-        public void SendPacketToTarget(string connectionId, NetworkPacket message, PacketSendMode sendMode = PacketSendMode.Unreliable)
+        public void SendPacketToTarget(string connectionId, NetworkPacket packet, PacketSendMode sendMode = PacketSendMode.Unreliable)
         {
             SteamId steamId = ulong.Parse(connectionId);
-            byte[] data = message.ToBytes();
+            byte[] data = NetworkPacket.ToBytes(packet);
             SteamNetworking.SendP2PPacket(steamId, data, sendType:ToP2PSend(sendMode));
         }
         public P2PSend ToP2PSend(PacketSendMode sendMode)

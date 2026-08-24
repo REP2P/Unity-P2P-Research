@@ -10,8 +10,8 @@
         void CreateSession(CreateSessionHandle handle);
         void JoinSession(JoinSessionHandle handle);
         void Disconnect();
-        void SendPacketToTarget(string connectionId, NetworkPacket message, PacketSendMode sendMode = PacketSendMode.Unreliable);
-        void SendPacketToAll(NetworkPacket message, PacketSendMode sendMode = PacketSendMode.Unreliable);
+        void SendPacketToTarget(string connectionId, NetworkPacket packet, PacketSendMode sendMode = PacketSendMode.Unreliable);
+        void SendPacketToAll(NetworkPacket packet, PacketSendMode sendMode = PacketSendMode.Unreliable);
 
         bool IsHost();
         bool IsConnected();
