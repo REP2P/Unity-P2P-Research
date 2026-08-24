@@ -24,13 +24,13 @@ public class MMONetworkManager : MonoBehaviour
         network = new REP2P.Network();
         network.Initialize(new SteamLayer());
         network.SubscribePacketHandler(HandlePackets);
-        network.OnCreatedServer += OnCreatedServer;
+        network.OnCreatedSession += OnCreatedSession;
         network.OnConnected += OnConnected;
         network.OnClientConnected += OnClientConnected;
         network.OnClientDisconnected += OnClientDisconnected;
     }
 
-    private void OnCreatedServer()
+    private void OnCreatedSession()
     {
         Debug.Log("Created Server!");
     }

@@ -10,7 +10,7 @@ namespace REP2P
         public NetworkConnection Owner => Layer.GetOwner();
         public NetworkConnection[] Connections => Layer.GetConnections();
         public SessionState SessionState => Layer.GetSessionState();
-        public Action OnCreatedServer;
+        public Action OnCreatedSession;
         public Action OnConnected;
         public Action OnDisconnected;
         public Action<NetworkConnection> OnClientConnected;

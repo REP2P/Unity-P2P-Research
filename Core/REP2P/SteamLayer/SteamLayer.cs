@@ -86,7 +86,7 @@ namespace REP2P.Steam
             this.lobby = lobby;
             switch (result) {
                 case Result.OK:
-                    network.OnCreatedServer?.Invoke();
+                    network.OnCreatedSession?.Invoke();
                     break;
             }
         }
