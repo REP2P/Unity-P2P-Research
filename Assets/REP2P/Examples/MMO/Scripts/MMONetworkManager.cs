@@ -10,7 +10,7 @@ using UnityEngine.UI;
 using BitStream = REP2P.BitStream;
 using Text = UnityEngine.UI.Text;
 
-public class NetworkManager : MonoBehaviour
+public class MMONetworkManager : MonoBehaviour
 {
     public REP2P.Network network;
     public Transform localPlayerInstance;
