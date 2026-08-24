@@ -38,12 +38,12 @@ public class NetworkManager : MonoBehaviour
         Debug.Log("Connected!");
     }
 
-    private void HandlePackets(NetworkConnection sender, NetworkPacket message)
+    private void HandlePackets(NetworkConnection sender, NetworkPacket packet)
     {
-        switch (message.packetId)
+        switch (packet.packetId)
         {
             case 0:
-                using (MemoryStream ms = new MemoryStream(message.packetBytes))
+                using (MemoryStream ms = new MemoryStream(packet.packetBytes))
                 {
                     using (BinaryReader reader = new BinaryReader(ms))
                     {
@@ -54,7 +54,7 @@ public class NetworkManager : MonoBehaviour
                 break;
             case 1:
                 var bubble = Instantiate(chatBubblePrefab, remotePlayers[sender].transform.Find("Chatpoint"));
-                bubble.GetComponentInChildren<Text>().text = Encoding.UTF8.GetString(message.packetBytes);
+                bubble.GetComponentInChildren<Text>().text = Encoding.UTF8.GetString(packet.packetBytes);
                 Destroy(bubble, 5);
                 break;
         }
@@ -98,7 +98,7 @@ public class NetworkManager : MonoBehaviour
     public void SendMessageToServer()
     {
         if (textChat.text.Length < 1) return;
-        NetworkPacket packet = new NetworkPacket(1, Encoding.UTF8.GetBytes(textChat.text));
+        NetworkPacket packet = NetworkPacket.Create(1, Encoding.UTF8.GetBytes(textChat.text));
         var bubble = Instantiate(chatBubblePrefab, localPlayerInstance.Find("Chatpoint"));
         bubble.GetComponentInChildren<Text>().text = Encoding.UTF8.GetString(packet.packetBytes);
         Destroy(bubble, 5);
@@ -110,7 +110,7 @@ public class NetworkManager : MonoBehaviour
         using (MemoryStream ms = new MemoryStream()) {
             using (BinaryWriter writer = new BinaryWriter(ms)) {
                 writer.Write(localPlayerInstance.position);
-                NetworkPacket packet = new NetworkPacket(0, ms.ToArray());
+                NetworkPacket packet = NetworkPacket.Create(0, ms.ToArray());
                 network.SendToAll(packet);
             }
         }

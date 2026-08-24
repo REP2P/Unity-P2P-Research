@@ -8,10 +8,14 @@ namespace REP2P
         public int packetId;
         public byte[] packetBytes;
 
-        public NetworkPacket(int packetId, byte[] packetBytes)
+        public static NetworkPacket Create(int packetId, byte[] packetBytes)
         {
-            this.packetId = packetId;
-            this.packetBytes = packetBytes;
+            var instance = new NetworkPacket()
+            {
+                packetId = packetId,
+                packetBytes = packetBytes
+            };
+            return instance;
         }
 
         public byte[] ToBytes()
@@ -32,7 +36,7 @@ namespace REP2P
             {
                 using (BinaryReader reader = new BinaryReader(stream))
                 {                  
-                    return new NetworkPacket(reader.ReadInt32(), reader.ReadBytes(bytes.Length));
+                    return Create(reader.ReadInt32(), reader.ReadBytes(bytes.Length));
                 }
             }
         }
