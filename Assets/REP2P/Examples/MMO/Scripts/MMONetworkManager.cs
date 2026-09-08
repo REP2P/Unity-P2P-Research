@@ -7,21 +7,20 @@ using System.IO;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
-using BitStream = REP2P.BitStream;
 using Text = UnityEngine.UI.Text;
 
 public class MMONetworkManager : MonoBehaviour
 {
-    public REP2P.Network network;
+    public P2PNetwork network;
     public Transform localPlayerInstance;
     public GameObject remotePlayerPrefab;
     public GameObject chatBubblePrefab;
-    public Dictionary<NetworkConnection, GameObject> remotePlayers;
+    public Dictionary<P2PConnection, GameObject> remotePlayers;
     private void Start()
     {
         SteamClient.Init(480);
-        remotePlayers = new Dictionary<NetworkConnection, GameObject>();
-        network = new REP2P.Network();
+        remotePlayers = new Dictionary<P2PConnection, GameObject>();
+        network = new P2PNetwork();
         network.Initialize(new SteamLayer());
         network.SubscribePacketHandler(HandlePackets);
         network.OnCreatedSession += OnCreatedSession;
@@ -40,12 +39,12 @@ public class MMONetworkManager : MonoBehaviour
         Debug.Log("Connected!");
     }
 
-    private void HandlePackets(NetworkConnection sender, NetworkPacket packet)
+    private void HandlePackets(P2PConnection sender, P2PPacket packet)
     {
         switch (packet.packetId)
         {
             case 0:
-                using (BitStream stream = BitStream.Create(packet.packetBytes))
+                using (P2PStream stream = P2PStream.Create(packet.packetBytes))
                 {
                     Vector3 position = stream.ReadVector3();
                     remotePlayers[sender].transform.position = position;
@@ -60,14 +59,14 @@ public class MMONetworkManager : MonoBehaviour
         
     }
 
-    private void OnClientDisconnected(NetworkConnection connection)
+    private void OnClientDisconnected(P2PConnection connection)
     {
         Debug.Log($"{connection.connectionId} Disconnected!");
         Destroy(remotePlayers[connection]);
         remotePlayers.Remove(connection);
     }
 
-    private void OnClientConnected(NetworkConnection connection)
+    private void OnClientConnected(P2PConnection connection)
     {
         Debug.Log($"{connection.connectionId} Connected!");
         var instance = Instantiate(remotePlayerPrefab);
@@ -97,7 +96,7 @@ public class MMONetworkManager : MonoBehaviour
     public void SendMessageToServer()
     {
         if (textChat.text.Length < 1) return;
-        NetworkPacket packet = NetworkPacket.Create(1, Encoding.UTF8.GetBytes(textChat.text));
+        P2PPacket packet = P2PPacket.Create(1, Encoding.UTF8.GetBytes(textChat.text));
         var bubble = Instantiate(chatBubblePrefab, localPlayerInstance.Find("Chatpoint"));
         bubble.GetComponentInChildren<Text>().text = Encoding.UTF8.GetString(packet.packetBytes);
         Destroy(bubble, 5);
@@ -106,10 +105,9 @@ public class MMONetworkManager : MonoBehaviour
 
     private void SyncPlayerMovement()
     {
-        using (BitStream stream = BitStream.Create()) {
+        using (P2PStream stream = P2PStream.Create()) {
             stream.Write(localPlayerInstance.position);
-            NetworkPacket packet = NetworkPacket.Create(0, stream.ToArray());
-            network.SendToAll(packet);
+            network.SendToAll(stream.ToPacket(0));
         }
     }
 }

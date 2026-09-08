@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace REP2P.Steam
 {
-    public class SteamLayer : NetworkLayer
+    public class SteamLayer : P2PLayer
     {
-        private Network network;
+        private P2PNetwork network;
         private Lobby? lobby;
-        public async void CreateSession(CreateSessionHandle baseHandle)
+        public async void CreateSession(P2PCreate baseHandle)
         {
             SteamCreateSessionHandle handle = (SteamCreateSessionHandle)baseHandle;
             Task<Lobby?> task = SteamMatchmaking.CreateLobbyAsync(handle.maxMembers);
@@ -60,16 +60,16 @@ namespace REP2P.Steam
             connections.Clear();
         }
 
-        public NetworkConnection[] GetConnections()
+        public P2PConnection[] GetConnections()
         {
             return connections.Values.ToArray();
         }
 
-        private Dictionary<SteamId, NetworkConnection> connections = new Dictionary<SteamId, NetworkConnection>();
+        private Dictionary<SteamId, P2PConnection> connections = new Dictionary<SteamId, P2PConnection>();
 
-        public void Initialize(Network network)
+        public void Initialize(P2PNetwork network)
         {
-            connections = new Dictionary<SteamId, NetworkConnection>();
+            connections = new Dictionary<SteamId, P2PConnection>();
             this.network = network;
             SteamNetworking.AllowP2PPacketRelay(true);
             SteamMatchmaking.OnLobbyCreated += OnLobbyCreated;
@@ -125,12 +125,12 @@ namespace REP2P.Steam
         {
             isConnected = true;
             this.lobby = lobby;
-            NetworkConnection connection = new NetworkConnection { connectionId = friend.ToString(), isHost = lobby.IsOwnedBy(friend.Id) };
+            P2PConnection connection = new P2PConnection { connectionId = friend.ToString(), isHost = lobby.IsOwnedBy(friend.Id) };
             connections.Add(friend.Id, connection);
             network.OnClientConnected?.Invoke(connection);
         }
 
-        public async void JoinSession(JoinSessionHandle baseHandle)
+        public async void JoinSession(P2PJoin baseHandle)
         {
             SteamJoinSessionHandle handle = (SteamJoinSessionHandle)baseHandle;
             Task<Lobby?> task = SteamMatchmaking.JoinLobbyAsync(handle.lobby);
@@ -144,7 +144,7 @@ namespace REP2P.Steam
             }
         }
 
-        public void SendPacketToAll(NetworkPacket packet, PacketSendMode sendMode = PacketSendMode.Unreliable)
+        public void SendPacketToAll(P2PPacket packet, P2PSend sendMode = P2PSend.Unreliable)
         {
             foreach (var connection in connections.Keys)
             {
@@ -152,26 +152,27 @@ namespace REP2P.Steam
             }
         }
 
-        public void SendPacketToTarget(string connectionId, NetworkPacket packet, PacketSendMode sendMode = PacketSendMode.Unreliable)
+        public void SendPacketToTarget(string connectionId, P2PPacket packet, P2PSend sendMode = P2PSend.Unreliable)
         {
             SteamId steamId = ulong.Parse(connectionId);
-            byte[] data = NetworkPacket.ToBytes(packet);
+            byte[] data = P2PPacket.ToBytes(packet);
             SteamNetworking.SendP2PPacket(steamId, data, sendType:ToP2PSend(sendMode));
         }
-        public P2PSend ToP2PSend(PacketSendMode sendMode)
+        public Steamworks.P2PSend ToP2PSend(P2PSend sendMode)
         {
             switch (sendMode)
             {
-                case PacketSendMode.Unreliable:
-                    return P2PSend.Unreliable;
-                case PacketSendMode.Reliable:
-                    return P2PSend.Reliable;
+                case P2PSend.Unreliable:
+                    return Steamworks.P2PSend.Unreliable;
+                case P2PSend.Reliable:
+                    return Steamworks.P2PSend.Reliable;
                 default:
-                    return P2PSend.Unreliable;
+                    return Steamworks.P2PSend.Unreliable;
             }
         }
         public void Tick()
         {
+            SteamClient.RunCallbacks();
             while (SteamNetworking.IsP2PPacketAvailable())
             {
                 var packet = SteamNetworking.ReadP2PPacket();
@@ -184,10 +185,10 @@ namespace REP2P.Steam
 
         private void HandleMessageFrom(SteamId steamId, byte[] data)
         {
-            network.HandleMessageFrom(connections[steamId], NetworkPacket.FromBytes(data));
+            network.HandleMessageFrom(connections[steamId], P2PPacket.FromBytes(data));
         }
 
-        public NetworkConnection GetOwner()
+        public P2PConnection GetOwner()
         {
             return connections[lobby.Value.Owner.Id];
         }
@@ -196,12 +197,12 @@ namespace REP2P.Steam
 
         public bool IsConnected() => isConnected;
 
-        public SessionState GetSessionState()
+        public P2PSession GetSessionState()
         {
-            return new SessionState() { connectionCount = lobby.Value.MemberCount, maxConnections = lobby.Value.MaxMembers };
+            return new P2PSession() { connectionCount = lobby.Value.MemberCount, maxConnections = lobby.Value.MaxMembers };
         }
 
-        public void Disconnect(NetworkConnection connection)
+        public void Disconnect(P2PConnection connection)
         {
             throw new Exception("Valve does not support remotely disconnecting other members");
         }

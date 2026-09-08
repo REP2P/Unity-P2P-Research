@@ -3,32 +3,32 @@
 namespace REP2P
 {
     [Serializable]
-    public struct NetworkPacket
+    public struct P2PPacket
     {       
         public int packetId;
         public byte[] packetBytes;
 
-        public static NetworkPacket Create(int packetId, byte[] packetBytes)
+        public static P2PPacket Create(int packetId, byte[] packetBytes)
         {
-            return new NetworkPacket()
+            return new P2PPacket()
             {
                 packetId = packetId,
                 packetBytes = packetBytes
             };
         }
 
-        public static byte[] ToBytes(NetworkPacket packet)
+        public static byte[] ToBytes(P2PPacket packet)
         {
-            using (BitStream stream = BitStream.Create()) {
+            using (P2PStream stream = P2PStream.Create()) {
                 stream.Write(packet.packetId);
                 stream.Write(packet.packetBytes);
                 return stream.ToArray();
             }
         }
 
-        public static NetworkPacket FromBytes(byte[] bytes)
+        public static P2PPacket FromBytes(byte[] bytes)
         {
-            using (BitStream stream = BitStream.Create(bytes))
+            using (P2PStream stream = P2PStream.Create(bytes))
             {
                 return Create(stream.ReadInt(), stream.ReadBytes());
             }

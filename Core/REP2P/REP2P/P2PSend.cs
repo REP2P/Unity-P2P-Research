@@ -4,7 +4,7 @@ using System.Text;
 
 namespace REP2P
 {
-    public enum PacketSendMode
+    public enum P2PSend
     {
         Reliable,
         Unreliable,

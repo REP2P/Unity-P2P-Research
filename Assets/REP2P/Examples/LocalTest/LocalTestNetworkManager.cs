@@ -1,8 +1,6 @@
 ﻿using REP2P;
 using System.Collections;
-using System.IO;
 using UnityEngine;
-using BitStream = REP2P.BitStream;
 
 public class LocalTestNetworkManager : MonoBehaviour
 {
@@ -14,31 +12,30 @@ public class LocalTestNetworkManager : MonoBehaviour
         Vector3 position = target.position;
         Vector3 scale = target.localScale;
 
-        using(BitStream stream = BitStream.Create())
+        using(P2PStream stream = P2PStream.Create())
         {
             stream.Write(position);
-            NetworkPacket packet = NetworkPacket.Create(0, stream.ToArray());
-            StartCoroutine(HandlePacketCopycat(NetworkPacket.ToBytes(packet)));
+            StartCoroutine(HandlePacketCopycat(stream.ToPacket(0)));
         }
-        using (BitStream stream = BitStream.Create())
+        using (P2PStream stream = P2PStream.Create())
         {
             stream.Write(scale);
-            NetworkPacket packet = NetworkPacket.Create(1, stream.ToArray());
-            StartCoroutine(HandlePacketCopycat(NetworkPacket.ToBytes(packet)));
+            StartCoroutine(HandlePacketCopycat(stream.ToPacket(1)));
         }
     }
     public float minLatency = 0;
     public float maxLatency = 0;
-    private IEnumerator HandlePacketCopycat(byte[] bytes)
+    private IEnumerator HandlePacketCopycat(P2PPacket packet)
     {
+        byte[] bytes = P2PPacket.ToBytes(packet);
         yield return new WaitForSeconds(Random.Range(minLatency, maxLatency)); 
         HandlePacketCopycatInternal(bytes);
     }
 
     private void HandlePacketCopycatInternal(byte[] bytes)
     {
-        NetworkPacket packet = NetworkPacket.FromBytes(bytes);
-        using (BitStream reader = BitStream.Create(packet.packetBytes))
+        P2PPacket packet = P2PPacket.FromBytes(bytes);
+        using (P2PStream reader = P2PStream.Create(packet.packetBytes))
         {
             switch (packet.packetId)
             {

@@ -1,6 +1,6 @@
 ﻿namespace REP2P.Steam
 {
-    public struct SteamCreateSessionHandle : CreateSessionHandle
+    public struct SteamCreateSessionHandle : P2PCreate
     {
         public int maxMembers;
         public bool isJoinable;

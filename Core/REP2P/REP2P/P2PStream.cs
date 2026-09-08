@@ -6,32 +6,32 @@ namespace REP2P
 {
     // Source https://github.com/tom-weiland/tcp-udp-networking/blob/master/GameServer/GameServer/Packet.cs
     // License https://github.com/tom-weiland/tcp-udp-networking/blob/master/Licence.txt
-    public class BitStream : IDisposable
+    public class P2PStream : IDisposable
     {
         private List<byte> buffer;
         private byte[] readableBuffer;
         private int readPos;
 
-        private BitStream()
+        private P2PStream()
         {
             buffer = new List<byte>();
             readPos = 0;
         }
         /// <summary>Creates a new Stream.</summary>
-        public static BitStream Create()
+        public static P2PStream Create()
         {
-            return new BitStream();
+            return new P2PStream();
         }
         /// <summary>Creates a new Stream with data.</summary>
-        public static BitStream Create(byte[] data)
+        public static P2PStream Create(byte[] data)
         {
-            BitStream stream = Create();
+            P2PStream stream = Create();
             stream.SetBytes(data);
             return stream;
         }
-        public NetworkPacket ToPacket(int packetId)
+        public P2PPacket ToPacket(int packetId)
         {
-            return NetworkPacket.Create(packetId, ToArray());
+            return P2PPacket.Create(packetId, ToArray());
         }
 
         #region Functions
