@@ -25,7 +25,12 @@ public static class P2PNetworkManager
         };
         PlayerLoop.SetPlayerLoop(playerLoop);
     }
+    private static readonly long s_timeInitialized = Environment.TickCount;
 
+    public static double GetNetworkTime()
+    {
+        return (double)((uint)Environment.TickCount - s_timeInitialized) / 1000.0;
+    }
     private static void ReceivedPacket(P2PConnection sender, P2PPacket message)
     {
         switch((P2PHLPackets)message.packetId)

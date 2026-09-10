@@ -129,6 +129,11 @@ namespace REP2P
         public void Write(float _value)
         {
             buffer.AddRange(BitConverter.GetBytes(_value));
+        }/// <summary>Adds a double to the packet.</summary>
+         /// <param name="_value">The double to add.</param>
+        public void Write(double _value)
+        {
+            buffer.AddRange(BitConverter.GetBytes(_value));
         }
         /// <summary>Adds a bool to the packet.</summary>
         /// <param name="_value">The bool to add.</param>
@@ -275,6 +280,27 @@ namespace REP2P
             else
             {
                 throw new Exception("Could not read value of type 'float'!");
+            }
+        }
+        
+        /// <summary>Reads a double from the packet.</summary>
+         /// <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
+        public double ReadDouble(bool _moveReadPos = true)
+        {
+            if (buffer.Count > readPos)
+            {
+                // If there are unread bytes
+                double _value = BitConverter.ToDouble(readableBuffer, readPos); // Convert the bytes to a double
+                if (_moveReadPos)
+                {
+                    // If _moveReadPos is true
+                    readPos += 8; // Increase readPos by 8
+                }
+                return _value; // Return the double
+            }
+            else
+            {
+                throw new Exception("Could not read value of type 'double'!");
             }
         }
 
