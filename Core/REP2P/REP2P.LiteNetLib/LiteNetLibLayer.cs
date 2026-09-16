@@ -11,6 +11,7 @@ namespace REP2P.LiteNetLib
         public EventBasedNetListener listener;
         public void Connect(string address, P2PConnect handle)
         {
+            netManager.Start();
             LiteNetLibConnect connect = (LiteNetLibConnect)handle;
             netManager.Connect(address, connect.port, connect.key);
         }
@@ -24,7 +25,7 @@ namespace REP2P.LiteNetLib
 
         public void Disconnect()
         {
-            throw new NotImplementedException();
+            netManager.DisconnectPeer(netManager.FirstPeer);
         }
 
         public void Disconnect(P2PConnection connection)
