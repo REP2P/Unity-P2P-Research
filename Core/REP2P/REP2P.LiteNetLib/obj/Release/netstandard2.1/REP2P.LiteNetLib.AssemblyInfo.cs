@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("REP2P.LiteNetLib")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2c53c87a0c9b4afe1bfcc6c9f6e91c8440aa800c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c0cad6684fa6d64699fe6d279030e7230406e617")]
 [assembly: System.Reflection.AssemblyProductAttribute("REP2P.LiteNetLib")]
 [assembly: System.Reflection.AssemblyTitleAttribute("REP2P.LiteNetLib")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,4 +1,6 @@
-﻿namespace REP2P
+﻿using System.Collections.Generic;
+
+namespace REP2P
 {
     public interface P2PLayer
     {
@@ -6,7 +8,7 @@
         void Deinitialize();
         void Tick();
         P2PConnection GetOwner();
-        P2PConnection[] GetConnections();
+        Dictionary<string, P2PConnection> GetConnections();
         void Start(int maxConnections, P2PStart handle);
         void Connect(string address, P2PConnect handle);
         void Disconnect();
@@ -15,7 +17,6 @@
 
         bool IsHost();
         bool IsConnected();
-        P2PSession GetSessionState();
         void Disconnect(P2PConnection connection);
     }
 }

@@ -1,12 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "PT1/VadO4lI=",
+  "dgSpecHash": "kA0tR3vEda8=",
   "success": true,
   "projectFilePath": "D:\\UnityProjects\\Unity P2P Research\\Core\\REP2P\\SteamLayer\\REP2P.Steam.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\cheesy\\.nuget\\packages\\facepunch.steamworks\\2.3.3\\facepunch.steamworks.2.3.3.nupkg.sha512",
-    "C:\\Users\\cheesy\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
-    "C:\\Users\\cheesy\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512"
+    "C:\\Users\\cheesy\\.nuget\\packages\\facepunch.steamworks\\2.3.3\\facepunch.steamworks.2.3.3.nupkg.sha512"
   ],
   "logs": []
 }

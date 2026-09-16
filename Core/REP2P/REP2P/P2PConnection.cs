@@ -2,7 +2,7 @@
 {
     public class P2PConnection
     {
-        public string connectionId;
+        public string address;
         public bool isHost;
     }
 }

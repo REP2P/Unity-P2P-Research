@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using LiteNetLib;
 
 namespace REP2P.LiteNetLib
@@ -16,7 +17,9 @@ namespace REP2P.LiteNetLib
 
         public void Deinitialize()
         {
-            throw new NotImplementedException();
+            Disconnect();
+            netManager = null;
+            listener = null;
         }
 
         public void Disconnect()
@@ -29,17 +32,12 @@ namespace REP2P.LiteNetLib
             throw new NotImplementedException();
         }
 
-        public P2PConnection[] GetConnections()
+        public Dictionary<string, P2PConnection> GetConnections()
         {
             throw new NotImplementedException();
         }
 
         public P2PConnection GetOwner()
-        {
-            throw new NotImplementedException();
-        }
-
-        public P2PSession GetSessionState()
         {
             throw new NotImplementedException();
         }
@@ -57,7 +55,6 @@ namespace REP2P.LiteNetLib
 
         public bool IsHost()
         {
-            throw new NotImplementedException();
         }
 
         public void SendPacketToAll(P2PPacket packet, P2PSend sendMode = P2PSend.Unreliable)
@@ -67,7 +64,6 @@ namespace REP2P.LiteNetLib
 
         public void SendPacketToTarget(string connectionId, P2PPacket packet, P2PSend sendMode = P2PSend.Unreliable)
         {
-            throw new NotImplementedException();
         }
 
         public void Start(int maxConnections, P2PStart handle)

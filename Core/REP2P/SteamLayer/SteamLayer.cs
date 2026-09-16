@@ -59,9 +59,13 @@ namespace REP2P.Steam
             connections.Clear();
         }
 
-        public P2PConnection[] GetConnections()
+        public Dictionary<string, P2PConnection> GetConnections()
         {
-            return connections.Values.ToArray();
+            var connectionsDic = new Dictionary<string, P2PConnection>();
+            foreach (var connection in connections.Values) {
+                connectionsDic.Add(connection.address, connection);
+            }
+            return connectionsDic;
         }
 
         private Dictionary<SteamId, P2PConnection> connections = new Dictionary<SteamId, P2PConnection>();
@@ -123,7 +127,7 @@ namespace REP2P.Steam
         {
             isConnected = true;
             this.lobby = lobby;
-            P2PConnection connection = new P2PConnection { connectionId = friend.ToString(), isHost = lobby.IsOwnedBy(friend.Id) };
+            P2PConnection connection = new P2PConnection { address = friend.ToString(), isHost = lobby.IsOwnedBy(friend.Id) };
             connections.Add(friend.Id, connection);
             P2PNetwork.OnClientConnected?.Invoke(connection);
         }
@@ -194,11 +198,6 @@ namespace REP2P.Steam
         public bool IsHost() => lobby.Value.IsOwnedBy(SteamClient.SteamId);
 
         public bool IsConnected() => isConnected;
-
-        public P2PSession GetSessionState()
-        {
-            return new P2PSession() { connectionCount = lobby.Value.MemberCount, maxConnections = lobby.Value.MaxMembers };
-        }
 
         public void Disconnect(P2PConnection connection)
         {
