@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "z8rkikhtj8c=",
+  "success": true,
+  "projectFilePath": "D:\\UnityProjects\\Unity P2P Research\\Core\\REP2P\\REP2P.LiteNetLib\\REP2P.LiteNetLib.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\cheesy\\.nuget\\packages\\litenetlib\\2.1.4\\litenetlib.2.1.4.nupkg.sha512"
+  ],
+  "logs": []
+}

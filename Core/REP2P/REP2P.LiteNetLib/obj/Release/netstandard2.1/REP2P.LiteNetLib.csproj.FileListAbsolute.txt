@@ -1,0 +1,5 @@
+D:\UnityProjects\Unity P2P Research\Core\REP2P\REP2P.LiteNetLib\obj\Release\netstandard2.1\REP2P.LiteNetLib.GeneratedMSBuildEditorConfig.editorconfig
+D:\UnityProjects\Unity P2P Research\Core\REP2P\REP2P.LiteNetLib\obj\Release\netstandard2.1\REP2P.LiteNetLib.AssemblyInfoInputs.cache
+D:\UnityProjects\Unity P2P Research\Core\REP2P\REP2P.LiteNetLib\obj\Release\netstandard2.1\REP2P.LiteNetLib.AssemblyInfo.cs
+D:\UnityProjects\Unity P2P Research\Core\REP2P\REP2P.LiteNetLib\obj\Release\netstandard2.1\REP2P.LiteNetLib.csproj.CoreCompileInputs.cache
+D:\UnityProjects\Unity P2P Research\Core\REP2P\REP2P.LiteNetLib\obj\Release\netstandard2.1\REP2P.LiteNetLib.sourcelink.json
