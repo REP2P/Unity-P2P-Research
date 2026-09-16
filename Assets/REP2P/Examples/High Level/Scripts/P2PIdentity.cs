@@ -29,6 +29,7 @@ public class P2PIdentity : MonoBehaviour
         {
             observable.OnP2PSerialize(stream, true, new() { time = P2PNetworkManager.GetNetworkTime()});
         }
+
     }
 
     public void SendRpc(byte rpc, P2PConnection connection, P2PStream stream, P2PSend send = P2PSend.Unreliable)
