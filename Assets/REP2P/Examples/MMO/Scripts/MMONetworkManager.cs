@@ -11,7 +11,6 @@ using Text = UnityEngine.UI.Text;
 
 public class MMONetworkManager : MonoBehaviour
 {
-    public P2PNetwork network;
     public Transform localPlayerInstance;
     public GameObject remotePlayerPrefab;
     public GameObject chatBubblePrefab;
@@ -20,13 +19,12 @@ public class MMONetworkManager : MonoBehaviour
     {
         SteamClient.Init(480);
         remotePlayers = new Dictionary<P2PConnection, GameObject>();
-        network = new P2PNetwork();
-        network.Initialize(new SteamLayer());
-        network.SubscribePacketHandler(HandlePackets);
-        network.OnCreatedSession += OnCreatedSession;
-        network.OnConnected += OnConnected;
-        network.OnClientConnected += OnClientConnected;
-        network.OnClientDisconnected += OnClientDisconnected;
+        P2PNetwork.Initialize(new SteamLayer());
+        P2PNetwork.SubscribePacketHandler(HandlePackets);
+        P2PNetwork.OnCreatedSession += OnCreatedSession;
+        P2PNetwork.OnConnected += OnConnected;
+        P2PNetwork.OnClientConnected += OnClientConnected;
+        P2PNetwork.OnClientDisconnected += OnClientDisconnected;
     }
 
     private void OnCreatedSession()
@@ -75,21 +73,21 @@ public class MMONetworkManager : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        network.DeInitialize();
+        P2PNetwork.DeInitialize();
         SteamClient.Shutdown();
     }
 
     public void CreateSession()
     {
-        network.Disconnect();
-        network.CreateSession(SteamCreateSessionHandle.CreateDefault());
+        P2PNetwork.Disconnect();
+        P2PNetwork.Start(64, SteamStart.CreateDefault());
     }
 
     private void Update()
     {
         SteamClient.RunCallbacks();
-        network.Update();
-        if(network.Layer.IsConnected())SyncPlayerMovement();
+        P2PNetwork.Update();
+        if(P2PNetwork.IsConnected) SyncPlayerMovement();
     }
 
     public InputField textChat; 
@@ -100,14 +98,14 @@ public class MMONetworkManager : MonoBehaviour
         var bubble = Instantiate(chatBubblePrefab, localPlayerInstance.Find("Chatpoint"));
         bubble.GetComponentInChildren<Text>().text = Encoding.UTF8.GetString(packet.packetBytes);
         Destroy(bubble, 5);
-        network.SendToAll(packet);
+        P2PNetwork.SendToAll(packet);
     }
 
     private void SyncPlayerMovement()
     {
         using (P2PStream stream = P2PStream.Create()) {
             stream.Write(localPlayerInstance.position);
-            network.SendToAll(stream.ToPacket(0));
+            P2PNetwork.SendToAll(stream.ToPacket(0));
         }
     }
 }

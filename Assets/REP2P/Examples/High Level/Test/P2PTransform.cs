@@ -4,11 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class P2PTransform : MonoBehaviour
+public class P2PTransform : MonoBehaviour, P2PObservable
 {
-    private bool maySend => P2PNetworkManager.network.IsHost;
-    public P2PIdentity identity;
-
     public bool syncPosition = true;
     public bool syncRotation = true;
     public bool syncScale = false;
@@ -16,44 +13,31 @@ public class P2PTransform : MonoBehaviour
     private Vector3 nextPosition;
     private Quaternion nextRotation;
     private Vector3 nextScale;
-    private float lastTimestamp;
+    private double lastTimestamp;
     public float lerpSpeed = 10f;
     public float teleportThreshold = 5f;
 
-    // RPCS
-    private byte RPC_Transform;
-
-    private void Start()
+    void Update()
     {
-        identity ??= GetComponentInParent<P2PIdentity>();
-        RPC_Transform = identity.RegisterRpc(OnTransformReceived);
+        transform.position = Vector3.Lerp(transform.position, nextPosition, lerpSpeed * Time.deltaTime);
     }
 
-    private void OnTransformReceived(P2PConnection sender, P2PStream stream)
+    public void OnP2PSerialize(P2PStream stream, bool write, P2PMessageInfo info)
     {
-        double receivedTimestamp = stream.ReadDouble();
-        if (receivedTimestamp < lastTimestamp || !sender.isHost) return;
-        nextPosition = stream.ReadVector3();
-        nextRotation = stream.ReadQuaternion();
-        nextScale = stream.ReadVector3();
-    }
-
-    private void Update()
-    {
-        if (maySend)
+        if (write)
         {
-            using (P2PStream stream = P2PStream.Create())
-            {
-                stream.Write(P2PNetworkManager.GetNetworkTime());
-                if (syncPosition) stream.Write(transform.position);
-                if (syncRotation) stream.Write(transform.rotation);
-                if (syncScale) stream.Write(transform.localScale);
-                identity.SendRpc(RPC_Transform, P2PRPCReceivers.Others, stream, P2PSend.Unreliable);
-            }               
+            if (syncPosition) stream.Write(transform.position);
+            if (syncRotation) stream.Write(transform.rotation);
+            if (syncScale) stream.Write(transform.localScale);
         }
         else
         {
-
-        }
+            double receivedTimestamp = info.time;
+            if (receivedTimestamp < lastTimestamp || !info.isHost) return;
+            lastTimestamp = receivedTimestamp;
+            nextPosition = stream.ReadVector3();
+            nextRotation = stream.ReadQuaternion();
+            nextScale = stream.ReadVector3();
+        }      
     }
 }

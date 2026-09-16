@@ -7,21 +7,16 @@ using UnityEngine.LowLevel;
 
 public static class P2PNetworkManager
 {
-    public static P2PNetwork network { get; internal set; }
     public static int nextNetId { get; internal set; } = 0;
     public static Dictionary<int, P2PIdentity> identities { get; internal set; } = new Dictionary<int, P2PIdentity>();
     [RuntimeInitializeOnLoadMethod]
     private static void OnStart()
     {
-        network = new P2PNetwork();
-        network.SubscribePacketHandler(ReceivedPacket);
+        P2PNetwork.SubscribePacketHandler(ReceivedPacket);
         var playerLoop = PlayerLoop.GetCurrentPlayerLoop();
         playerLoop.updateDelegate += () =>
         {
-            if (network != null)
-            {
-                network.Update();
-            }
+            P2PNetwork.Update();
         };
         PlayerLoop.SetPlayerLoop(playerLoop);
     }
@@ -52,11 +47,11 @@ public static class P2PNetworkManager
 
     public static void Initialize(P2PLayer layer)
     {
-        network.Initialize(layer);
+        P2PNetwork.Initialize(layer);
     }
     public static void DeInitialize()
     {
-        network.DeInitialize();
+        P2PNetwork.DeInitialize();
     }
     public static void ResetScene()
     {
@@ -76,7 +71,7 @@ public static class P2PNetworkManager
 
     public static void SendRpc(int netId, P2PConnection connection, byte rpc, P2PStream stream, P2PSend send)
     {
-        network.Send(connection, CreateRpcPacket(netId, rpc, stream), send);
+        P2PNetwork.Send(connection, CreateRpcPacket(netId, rpc, stream), send);
     }
     private static P2PPacket CreateRpcPacket(int netId, byte rpc, P2PStream stream)
     {
@@ -90,6 +85,6 @@ public static class P2PNetworkManager
     }
     public static void SendRpc(int netId, byte rpc, P2PStream stream, P2PSend send)
     {
-        network.SendToAll(CreateRpcPacket(netId, rpc, stream), send);
+        P2PNetwork.SendToAll(CreateRpcPacket(netId, rpc, stream), send);
     }
 }

@@ -2,13 +2,13 @@
 {
     public interface P2PLayer
     {
-        void Initialize(P2PNetwork network);
+        void Initialize();
         void Deinitialize();
         void Tick();
         P2PConnection GetOwner();
         P2PConnection[] GetConnections();
-        void CreateSession(P2PCreate handle);
-        void JoinSession(P2PJoin handle);
+        void Start(int maxConnections, P2PStart handle);
+        void Connect(string address, P2PConnect handle);
         void Disconnect();
         void SendPacketToTarget(string connectionId, P2PPacket packet, P2PSend sendMode = P2PSend.Unreliable);
         void SendPacketToAll(P2PPacket packet, P2PSend sendMode = P2PSend.Unreliable);

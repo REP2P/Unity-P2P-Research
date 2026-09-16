@@ -4,5 +4,6 @@ using UnityEngine;
 
 public enum P2PHLPackets : int
 {
-    Rpc
+    Rpc,
+    Serialize
 }

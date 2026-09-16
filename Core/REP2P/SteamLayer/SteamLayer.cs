@@ -9,12 +9,11 @@ namespace REP2P.Steam
 {
     public class SteamLayer : P2PLayer
     {
-        private P2PNetwork network;
         private Lobby? lobby;
-        public async void CreateSession(P2PCreate baseHandle)
+        public async void Start(int maxMembers, P2PStart baseHandle)
         {
-            SteamCreateSessionHandle handle = (SteamCreateSessionHandle)baseHandle;
-            Task<Lobby?> task = SteamMatchmaking.CreateLobbyAsync(handle.maxMembers);
+            SteamStart handle = (SteamStart)baseHandle;
+            Task<Lobby?> task = SteamMatchmaking.CreateLobbyAsync(maxMembers);
             await task;
             if (task.IsCompleted)
             {
@@ -67,10 +66,9 @@ namespace REP2P.Steam
 
         private Dictionary<SteamId, P2PConnection> connections = new Dictionary<SteamId, P2PConnection>();
 
-        public void Initialize(P2PNetwork network)
+        public void Initialize()
         {
             connections = new Dictionary<SteamId, P2PConnection>();
-            this.network = network;
             SteamNetworking.AllowP2PPacketRelay(true);
             SteamMatchmaking.OnLobbyCreated += OnLobbyCreated;
             SteamMatchmaking.OnLobbyEntered += OnLobbyEntered;
@@ -86,7 +84,7 @@ namespace REP2P.Steam
             this.lobby = lobby;
             switch (result) {
                 case Result.OK:
-                    network.OnCreatedSession?.Invoke();
+                    P2PNetwork.OnCreatedSession?.Invoke();
                     break;
             }
         }
@@ -95,7 +93,7 @@ namespace REP2P.Steam
         {
             isConnected = true;
             this.lobby = lobby;
-            network.OnConnected?.Invoke();
+            P2PNetwork.OnConnected?.Invoke();
         }
 
         private void OnLobbyMemberDataChanged(Lobby lobby, Friend friend)
@@ -117,7 +115,7 @@ namespace REP2P.Steam
         {
             isConnected = true;
             this.lobby = lobby;
-            network.OnClientConnected?.Invoke(connections[friend.Id]);
+            P2PNetwork.OnClientConnected?.Invoke(connections[friend.Id]);
             connections.Remove(friend.Id);
         }
 
@@ -127,13 +125,13 @@ namespace REP2P.Steam
             this.lobby = lobby;
             P2PConnection connection = new P2PConnection { connectionId = friend.ToString(), isHost = lobby.IsOwnedBy(friend.Id) };
             connections.Add(friend.Id, connection);
-            network.OnClientConnected?.Invoke(connection);
+            P2PNetwork.OnClientConnected?.Invoke(connection);
         }
 
-        public async void JoinSession(P2PJoin baseHandle)
+        public async void Connect(string address, P2PConnect baseHandle)
         {
-            SteamJoinSessionHandle handle = (SteamJoinSessionHandle)baseHandle;
-            Task<Lobby?> task = SteamMatchmaking.JoinLobbyAsync(handle.lobby);
+            SteamConnect handle = (SteamConnect)baseHandle;
+            Task<Lobby?> task = SteamMatchmaking.JoinLobbyAsync(ulong.Parse(address));
             await task;
             if(task.IsCompleted)
             {
@@ -185,7 +183,7 @@ namespace REP2P.Steam
 
         private void HandleMessageFrom(SteamId steamId, byte[] data)
         {
-            network.HandleMessageFrom(connections[steamId], P2PPacket.FromBytes(data));
+            P2PNetwork.HandleMessageFrom(connections[steamId], P2PPacket.FromBytes(data));
         }
 
         public P2PConnection GetOwner()

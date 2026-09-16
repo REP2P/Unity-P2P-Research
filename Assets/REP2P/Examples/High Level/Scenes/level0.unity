@@ -269,6 +269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 443df34bcab331241967ecb4a7f1531a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  observableComponent: {fileID: 297261051}
 --- !u!114 &297261051
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -426,6 +427,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 443df34bcab331241967ecb4a7f1531a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  observableComponent: {fileID: 651337851}
 --- !u!54 &651337846
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -683,6 +685,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 443df34bcab331241967ecb4a7f1531a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  observableComponent: {fileID: 1723011729}
 --- !u!54 &1723011724
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -844,9 +847,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   identities:
-  - {fileID: 1723011723}
-  - {fileID: 651337845}
   - {fileID: 297261050}
+  - {fileID: 651337845}
+  - {fileID: 1723011723}
 --- !u!4 &1749682413
 Transform:
   m_ObjectHideFlags: 0

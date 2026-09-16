@@ -4,7 +4,7 @@ using System.Text;
 
 namespace REP2P
 {
-    public interface P2PJoin
+    public interface P2PStart
     {
     }
 }
