@@ -43,93 +43,51 @@ namespace REP2P.Steam
         public void Deinitialize()
         {
             SteamNetworking.AllowP2PPacketRelay(false);
-            SteamMatchmaking.OnLobbyCreated -= OnLobbyCreated;
             SteamMatchmaking.OnLobbyEntered -= OnLobbyEntered;
             SteamMatchmaking.OnLobbyMemberJoined -= OnLobbyMemberJoined;
-            SteamMatchmaking.OnLobbyMemberDataChanged -= OnLobbyMemberDataChanged;
             SteamMatchmaking.OnLobbyMemberDisconnected -= OnLobbyMemberDisconnected;
             SteamNetworking.OnP2PSessionRequest -= OnP2PSessionRequest;
             Disconnect();
         }
 
-        public void Disconnect()
+        private void OnLobbyMemberDisconnected(Lobby lobby, Friend friend)
         {
-            isConnected = false;
-            lobby?.Leave();
-            connections.Clear();
+            throw new NotImplementedException();
         }
 
-        public Dictionary<string, P2PConnection> GetConnections()
+        private void OnLobbyMemberJoined(Lobby lobby, Friend friend)
         {
-            var connectionsDic = new Dictionary<string, P2PConnection>();
-            foreach (var connection in connections.Values) {
-                connectionsDic.Add(connection.address, connection);
-            }
-            return connectionsDic;
-        }
-
-        private Dictionary<SteamId, P2PConnection> connections = new Dictionary<SteamId, P2PConnection>();
-
-        public void Initialize()
-        {
-            connections = new Dictionary<SteamId, P2PConnection>();
-            SteamNetworking.AllowP2PPacketRelay(true);
-            SteamMatchmaking.OnLobbyCreated += OnLobbyCreated;
-            SteamMatchmaking.OnLobbyEntered += OnLobbyEntered;
-            SteamMatchmaking.OnLobbyMemberJoined += OnLobbyMemberJoined;
-            SteamMatchmaking.OnLobbyMemberDataChanged += OnLobbyMemberDataChanged;
-            SteamMatchmaking.OnLobbyMemberDisconnected += OnLobbyMemberDisconnected;
-            SteamNetworking.OnP2PSessionRequest += OnP2PSessionRequest;
-        }
-
-        private void OnLobbyCreated(Result result, Lobby lobby)
-        {
-            isConnected = true;
-            this.lobby = lobby;
-            switch (result) {
-                case Result.OK:
-                    P2PNetwork.OnCreatedSession?.Invoke();
-                    break;
-            }
+            throw new NotImplementedException();
         }
 
         private void OnLobbyEntered(Lobby lobby)
         {
-            isConnected = true;
             this.lobby = lobby;
-            P2PNetwork.OnConnected?.Invoke();
         }
 
-        private void OnLobbyMemberDataChanged(Lobby lobby, Friend friend)
+        public void Disconnect()
         {
-            isConnected = true;
-            this.lobby = lobby;
-            if (connections.ContainsKey(friend.Id))
-            {
-                connections[friend.Id] = connections[friend.Id];
-            }
+            lobby?.Leave();
+            connections.Clear();
+        }
+
+        public string[] GetConnections() => connections.Values.ToArray();
+
+        private Dictionary<SteamId, string> connections = new Dictionary<SteamId, string>();
+
+        public void Initialize()
+        {
+            connections = new Dictionary<SteamId, string>();
+            SteamNetworking.AllowP2PPacketRelay(true);
+            SteamMatchmaking.OnLobbyEntered += OnLobbyEntered;
+            SteamMatchmaking.OnLobbyMemberJoined += OnLobbyMemberJoined;
+            SteamMatchmaking.OnLobbyMemberDisconnected += OnLobbyMemberDisconnected;
+            SteamNetworking.OnP2PSessionRequest += OnP2PSessionRequest;
         }
 
         private void OnP2PSessionRequest(SteamId id)
         {
             SteamNetworking.AcceptP2PSessionWithUser(id);
-        }
-
-        private void OnLobbyMemberDisconnected(Lobby lobby, Friend friend)
-        {
-            isConnected = true;
-            this.lobby = lobby;
-            P2PNetwork.OnClientConnected?.Invoke(connections[friend.Id]);
-            connections.Remove(friend.Id);
-        }
-
-        private void OnLobbyMemberJoined(Lobby lobby, Friend friend)
-        {
-            isConnected = true;
-            this.lobby = lobby;
-            P2PConnection connection = new P2PConnection { address = friend.ToString(), isHost = lobby.IsOwnedBy(friend.Id) };
-            connections.Add(friend.Id, connection);
-            P2PNetwork.OnClientConnected?.Invoke(connection);
         }
 
         public async void Connect(string address, P2PConnect baseHandle)
@@ -150,7 +108,8 @@ namespace REP2P.Steam
         {
             foreach (var connection in connections.Keys)
             {
-                SendPacketToTarget(connection.ToString(), packet, sendMode);
+                string id = connection.Value.ToString();
+                SendPacketToTarget(id, packet, sendMode);
             }
         }
 
@@ -190,18 +149,14 @@ namespace REP2P.Steam
             P2PNetwork.HandleMessageFrom(connections[steamId], P2PPacket.FromBytes(data));
         }
 
-        public P2PConnection GetOwner()
+        public string GetHost()
         {
             return connections[lobby.Value.Owner.Id];
         }
-        private bool isConnected;
-        public bool IsHost() => lobby.Value.IsOwnedBy(SteamClient.SteamId);
+        public bool IsHost() => lobby.Value.IsOwnedBy(SteamClient.SteamId.Value);
 
-        public bool IsConnected() => isConnected;
+        public bool IsConnected() => lobby.HasValue && lobby.Value.Id.IsValid;
 
-        public void Disconnect(P2PConnection connection)
-        {
-            throw new Exception("Valve does not support remotely disconnecting other members");
-        }
+        public string GetLocalConnection() => SteamClient.SteamId.Value.ToString();
     }
 }

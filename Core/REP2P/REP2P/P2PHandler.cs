@@ -4,5 +4,5 @@ using System.Text;
 
 namespace REP2P
 {
-    public delegate void P2PHandler(P2PConnection sender, P2PPacket message);
+    public delegate void P2PHandler(string sender, P2PPacket message);
 }

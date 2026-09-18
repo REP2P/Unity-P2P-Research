@@ -7,8 +7,9 @@ namespace REP2P
         void Initialize();
         void Deinitialize();
         void Tick();
-        P2PConnection GetOwner();
-        Dictionary<string, P2PConnection> GetConnections();
+        string GetLocalConnection();
+        string GetHost();
+        string[] GetConnections();
         void Start(int maxConnections, P2PStart handle);
         void Connect(string address, P2PConnect handle);
         void Disconnect();
@@ -17,6 +18,5 @@ namespace REP2P
 
         bool IsHost();
         bool IsConnected();
-        void Disconnect(P2PConnection connection);
     }
 }
