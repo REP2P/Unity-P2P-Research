@@ -105,5 +105,10 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
 /Core/REP2P/REP2P/obj
 /Core/REP2P/REP2P/bin
+/Core/REP2P/obj
+/Core/REP2P/bin
+/Core/REP2P/REP2P.SteamworksNET/obj
+/Core/REP2P/REP2P.SteamworksNET/bin
