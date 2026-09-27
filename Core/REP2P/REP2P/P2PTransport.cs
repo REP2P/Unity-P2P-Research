@@ -11,12 +11,15 @@ namespace REP2P
         public event EventHandler ConnectionFailed;
         public event EventHandler<P2PConnection> ClientConnected;
         public event EventHandler<P2PConnection> ClientDisconnected;
+        public event EventHandler<P2PDataReceivedEventArgs> DataReceived;
 
         public bool IsHost { get; }
         public bool IsConnected { get; }
+        public P2PConnection Host { get; }
         public void Listen(int maxConnections, P2PVisibility visibility = P2PVisibility.Public);
         public void Connect(string address, out P2PConnection connection, out string connectError);
 
         public void Poll();
+        public void Disconnect();
     }
 }

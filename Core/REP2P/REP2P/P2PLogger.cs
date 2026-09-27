@@ -6,6 +6,7 @@ namespace REP2P
 {
     public static class P2PLogger
     {
+        public const string LOG = "[P2P]";
         private static event LogMethod log;
         private static event LogMethod warning;
         private static event LogMethod error;
@@ -21,9 +22,9 @@ namespace REP2P
             exception = _exception;
         }
 
-        public static void Log(string _log) => log(_log);
-        public static void Warning(string _log) => warning(_log);
-        public static void Error(string _log) => error(_log);
-        public static void Exception(Exception _exception) => exception(_exception);
+        public static void Log(string _log) => log?.Invoke(LOG + _log);
+        public static void Warning(string _log) => warning?.Invoke(LOG + _log);
+        public static void Error(string _log) => error?.Invoke(LOG + _log);
+        public static void Exception(Exception _exception) => exception?.Invoke(_exception);
     }
 }

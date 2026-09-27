@@ -8,11 +8,9 @@ namespace REP2P.SteamworksNET
 {
     public class SteamConnection : P2PConnection
     {
-        public override int Id { get => throw new NotImplementedException(); protected set => throw new NotImplementedException(); }
+        public override bool IsHost => SteamMatchmaking.GetLobbyOwner(SteamTransport.CurrentLobby) == SteamID;
 
-        public override bool IsHost => throw new NotImplementedException();
-
-        public override bool IsConnected => throw new NotImplementedException();
+        public override bool IsConnected => SteamID.IsValid();
 
         public CSteamID SteamID { get; protected set; }
         internal SteamConnection(CSteamID id) {

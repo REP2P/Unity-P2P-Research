@@ -1,6 +1,8 @@
 ﻿using Steamworks;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace REP2P.SteamworksNET
@@ -9,9 +11,11 @@ namespace REP2P.SteamworksNET
     public class SteamTransport : P2PTransport
     {
         public const int CHANNEL = 420;
-        public bool IsHost => throw new NotImplementedException();
+        public bool IsHost => IsConnected && SteamMatchmaking.GetLobbyOwner(CurrentLobby) == SteamUser.GetSteamID();
+        public static CSteamID CurrentLobby;
+        public bool IsConnected => CurrentLobby.IsValid();
 
-        public bool IsConnected => throw new NotImplementedException();
+        public P2PConnection Host => GetConnection(SteamMatchmaking.GetLobbyOwner(CurrentLobby));
 
         public event EventHandler Listened;
         public event EventHandler Connected;
@@ -19,8 +23,57 @@ namespace REP2P.SteamworksNET
         public event EventHandler ConnectionFailed;
         public event EventHandler<P2PConnection> ClientConnected;
         public event EventHandler<P2PConnection> ClientDisconnected;
+        public event EventHandler<P2PDataReceivedEventArgs> DataReceived;
 
-        public Dictionary<CSteamID, SteamConnection> connections = new Dictionary<CSteamID, SteamConnection>();
+        protected Callback<LobbyEnter_t> lobbyEntered;
+        protected Callback<LobbyCreated_t> lobbyCreated;
+        protected Callback<LobbyChatUpdate_t> lobbyChatUpdate;
+        protected Callback<LobbyDataUpdate_t> lobbyDataUpdate;
+
+        public SteamTransport()
+        {
+            lobbyEntered = Callback<LobbyEnter_t>.Create(OnLobbyEnter);
+            lobbyCreated = Callback<LobbyCreated_t>.Create(OnLobbyCreated);
+            lobbyChatUpdate = Callback<LobbyChatUpdate_t>.Create(OnLobbyChatUpdate);
+        }
+
+        private void OnLobbyChatUpdate(LobbyChatUpdate_t param)
+        {
+            var steamID = new CSteamID(param.m_ulSteamIDUserChanged);
+
+            switch ((EChatMemberStateChange)param.m_rgfChatMemberStateChange)
+            {
+                case EChatMemberStateChange.k_EChatMemberStateChangeEntered:
+                    ClientConnected?.Invoke(this, CreateConnection(steamID));
+                    break;
+                case EChatMemberStateChange.k_EChatMemberStateChangeLeft:
+                case EChatMemberStateChange.k_EChatMemberStateChangeDisconnected:
+                case EChatMemberStateChange.k_EChatMemberStateChangeKicked:
+                case EChatMemberStateChange.k_EChatMemberStateChangeBanned:
+                    ClientDisconnected?.Invoke(this, GetConnection(steamID));
+                    break;
+            }
+        }
+
+        private void OnLobbyEnter(LobbyEnter_t param)
+        {
+            CurrentLobby = (CSteamID)param.m_ulSteamIDLobby;
+
+            Connected?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void OnLobbyCreated(LobbyCreated_t param)
+        {
+            if (param.m_eResult == EResult.k_EResultOK)
+            {
+                CurrentLobby = (CSteamID)param.m_ulSteamIDLobby;
+                Listened?.Invoke(this, EventArgs.Empty);
+            }
+            else
+            {
+                ConnectionFailed?.Invoke(this, EventArgs.Empty);
+            }  
+        }
 
         public void Connect(string address, out P2PConnection connection, out string connectError)
         {
@@ -63,9 +116,9 @@ namespace REP2P.SteamworksNET
                 IntPtr outMessage = outMessages[i];
 
                 int messageSize = Marshal.SizeOf(outMessage);
-                if (messageSize > P2PMessage.MaxSize)
+                if (messageSize > Constants.k_cbMaxSteamNetworkingSocketsMessageSizeSend)
                 {
-                    P2PLogger.Error($"Ignored message because its size was above the max ({messageSize}/{P2PMessage.MaxSize})");
+                    P2PLogger.Error($"Ignored message because its size was above the max ({messageSize}/{Constants.k_cbMaxSteamNetworkingSocketsMessageSizeSend})");
                     SteamNetworkingMessage_t.Release(outMessages[i]);
                     continue;
                 }
@@ -82,7 +135,7 @@ namespace REP2P.SteamworksNET
                 }
 
                 // Ignore them if they're not in the lobby
-                if (!connections.ContainsKey(sender))
+                if (GetConnection(sender) == null)
                 {
                     SteamNetworkingMessage_t.Release(outMessages[i]);
                     continue;
@@ -90,20 +143,29 @@ namespace REP2P.SteamworksNET
 
                 byte[] managedArray = new byte[steamNetworkingMessage.m_cbSize];
                 Marshal.Copy(steamNetworkingMessage.m_pData, managedArray, 0, steamNetworkingMessage.m_cbSize);
-
-                var message = new P2PMessage(managedArray);
-
                 try
                 {
-                    HandleMessage(message, sender);
+                    DataReceived(this, new P2PDataReceivedEventArgs(GetConnection(sender), managedArray));
                 }
                 catch (Exception ex)
                 {
-                    P2PLogger.Error($"Error executing RPC from {sender} ({destination}): {ex.Message} {ex.StackTrace}");
+                    P2PLogger.Error($"Error receiving data from {sender}: {ex.Message} {ex.StackTrace}");
                 }
 
                 SteamNetworkingMessage_t.Release(outMessages[i]);
             }
+        }
+
+        public SteamConnection GetConnection(CSteamID id) => (SteamConnection)P2PNetwork.Connections.Values.First(x => (x as SteamConnection).SteamID == id);
+        public SteamConnection CreateConnection(CSteamID steamID)
+        {
+            return new SteamConnection(steamID);
+        }
+        public void Disconnect()
+        {
+            SteamMatchmaking.LeaveLobby(CurrentLobby);
+            CurrentLobby = CSteamID.Nil;
+            Disconnected?.Invoke(this, EventArgs.Empty);
         }
     }
 }

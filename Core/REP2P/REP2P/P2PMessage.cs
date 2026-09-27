@@ -8,17 +8,19 @@ namespace REP2P
     // License https://github.com/tom-weiland/tcp-udp-networking/blob/master/Licence.txt
     public class P2PMessage : IDisposable
     {
-        public static int MaxSize { get; private set; } = 524288;
-
+        public readonly int messageId;
         private List<byte> buffer;
         private byte[] readableBuffer;
         private int readPos;
+        private bool hasId;
 
         /// <summary>Creates a new empty packet (without an ID).</summary>
         public P2PMessage()
         {
             buffer = new List<byte>(); // Initialize buffer
             readPos = 0; // Set readPos to 0
+            hasId=false;
+            Write(hasId);
         }
 
         /// <summary>Creates a new packet with a given ID. Used for sending.</summary>
@@ -27,7 +29,9 @@ namespace REP2P
         {
             buffer = new List<byte>(); // Initialize buffer
             readPos = 0; // Set readPos to 0
-
+            hasId= true;
+            Write(hasId);
+            messageId= _id;
             Write(_id); // Write packet id to the buffer
         }
 
@@ -39,6 +43,9 @@ namespace REP2P
             readPos = 0; // Set readPos to 0
 
             SetBytes(_data);
+            if (ReadBool()) { 
+                messageId = ReadInt();
+            }
         }
 
         #region Functions
