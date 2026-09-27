@@ -249,12 +249,27 @@
             Dispose this after use
             </summary>
         </member>
-        <member name="T:REP2P.P2PMessageReceived">
+        <member name="T:REP2P.P2PMessageHandler">
             <summary>
             Method for when you receive a message
             </summary>
             <param name="sender"></param>
             <param name="message"></param>
+        </member>
+        <member name="T:REP2P.P2PMessageHandlerAttribute">
+            <summary>
+            High Level Message Handler, Attach this to a static method which follows <see cref="T:REP2P.P2PMessageHandler"/> principle
+            </summary>
+        </member>
+        <member name="F:REP2P.P2PMessageHandlerAttribute.MessageId">
+            <summary>
+            The ID of the Message
+            </summary>
+        </member>
+        <member name="M:REP2P.P2PMessageHandlerAttribute.#ctor(System.UInt16)">
+            <summary>
+            High Level Message Handler, Attach this to a static method which follows <see cref="T:REP2P.P2PMessageHandler"/> principle
+            </summary>
         </member>
         <member name="T:REP2P.P2PMessageReceivedEventArgs">
             <summary>

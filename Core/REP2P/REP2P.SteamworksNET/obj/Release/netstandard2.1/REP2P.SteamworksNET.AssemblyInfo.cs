@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("REP2P.SteamworksNET")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2051617cb107020fb4cae90dfec1582e0e2fea4b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7d8ac1177898af8c6d7e25d6ea2f98db98c50681")]
 [assembly: System.Reflection.AssemblyProductAttribute("REP2P.SteamworksNET")]
 [assembly: System.Reflection.AssemblyTitleAttribute("REP2P.SteamworksNET")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
