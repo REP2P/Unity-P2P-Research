@@ -13,3 +13,4 @@ D:\UnityProjects\Unity P2P Research\Core\REP2P\REP2P.SteamworksNET\obj\Release\n
 D:\UnityProjects\Unity P2P Research\Core\REP2P\REP2P.SteamworksNET\obj\Release\netstandard2.1\REP2P.St.DA3AC3BD.Up2Date
 D:\UnityProjects\Unity P2P Research\Core\REP2P\REP2P.SteamworksNET\obj\Release\netstandard2.1\REP2P.SteamworksNET.dll
 D:\UnityProjects\Unity P2P Research\Core\REP2P\REP2P.SteamworksNET\obj\Release\netstandard2.1\REP2P.SteamworksNET.pdb
+D:\UnityProjects\Unity P2P Research\Core\REP2P\REP2P.SteamworksNET\bin\Release\netstandard2.1\REP2P.xml

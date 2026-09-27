@@ -6,8 +6,14 @@ namespace REP2P
 {
     // Source https://github.com/tom-weiland/tcp-udp-networking/blob/master/GameServer/GameServer/Packet.cs
     // License https://github.com/tom-weiland/tcp-udp-networking/blob/master/Licence.txt
+    /// <summary>
+    /// P2P Message that will be send across the P2P Mesh Network
+    /// </summary>
     public class P2PMessage : IDisposable
     {
+        /// <summary>
+        /// your message id
+        /// </summary>
         public readonly int messageId;
         private List<byte> buffer;
         private byte[] readableBuffer;
@@ -115,6 +121,7 @@ namespace REP2P
         }
         /// <summary>Adds an array of bytes to the packet.</summary>
         /// <param name="_value">The byte array to add.</param>
+        /// <param name="_writeLength">write the length from the array</param>
         public void Write(byte[] _value, bool _writeLength = true)
         {
             if(_writeLength) Write(_value.Length);
@@ -363,6 +370,10 @@ namespace REP2P
 
         private bool disposed = false;
 
+        /// <summary>
+        /// Dispose this after use
+        /// </summary>
+        /// <param name="_disposing"></param>
         protected virtual void Dispose(bool _disposing)
         {
             if (!disposed)
@@ -378,6 +389,9 @@ namespace REP2P
             }
         }
 
+        /// <summary>
+        /// Dispose this after use
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);

@@ -1,0 +1,478 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>REP2P</name>
+    </assembly>
+    <members>
+        <member name="T:REP2P.P2PConnection">
+            <summary>
+            Remote P2P Connection that receives messages
+            </summary>
+        </member>
+        <member name="P:REP2P.P2PConnection.Id">
+            <summary>
+            Their Id
+            </summary>
+        </member>
+        <member name="P:REP2P.P2PConnection.IsHost">
+            <summary>
+            Are they the host?
+            </summary>
+        </member>
+        <member name="P:REP2P.P2PConnection.IsConnected">
+            <summary>
+            Are they still with us?
+            </summary>
+        </member>
+        <member name="M:REP2P.P2PConnection.Send(REP2P.P2PMessage,REP2P.P2PSendMode,System.Boolean)">
+            <summary>
+            Sends a message to that connection
+            </summary>
+            <param name="message">your message to them</param>
+            <param name="sendMode">is it reliable or nah</param>
+            <param name="shouldRelease">disposes the message after use</param>
+        </member>
+        <member name="M:REP2P.P2PConnection.Send(System.Byte[],REP2P.P2PSendMode)">
+            <summary>
+            low level message to that connection
+            </summary>
+            <param name="data">message into a byte array</param>
+            <param name="sendMode">is the packet reliable</param>
+        </member>
+        <member name="T:REP2P.P2PDataReceivedEventArgs">
+            <summary>
+            Received the data event arg
+            </summary>
+        </member>
+        <member name="F:REP2P.P2PDataReceivedEventArgs.sender">
+            <summary>
+            Who sent the data
+            </summary>
+        </member>
+        <member name="F:REP2P.P2PDataReceivedEventArgs.data">
+            <summary>
+            The data sent
+            </summary>
+        </member>
+        <member name="M:REP2P.P2PDataReceivedEventArgs.#ctor(REP2P.P2PConnection,System.Byte[])">
+            <summary>
+            Constructor
+            </summary>
+            <param name="_sender">who sent the data</param>
+            <param name="_data">the data sent</param>
+        </member>
+        <member name="T:REP2P.P2PLogger">
+            <summary>
+            Attach this to your console/debugger
+            </summary>
+        </member>
+        <member name="F:REP2P.P2PLogger.LOG">
+            <summary>
+            P2P Logger Key that will be appended to your P2P Log
+            </summary>
+        </member>
+        <member name="T:REP2P.P2PLogger.LogMethod">
+            <summary>
+            Log Method
+            </summary>
+            <param name="log">message</param>
+        </member>
+        <member name="T:REP2P.P2PLogger.ExceptionLogMethod">
+            <summary>
+            Exception Log Method
+            </summary>
+            <param name="exception">exception message</param>
+        </member>
+        <member name="M:REP2P.P2PLogger.Initialize(REP2P.P2PLogger.LogMethod,REP2P.P2PLogger.LogMethod,REP2P.P2PLogger.LogMethod,REP2P.P2PLogger.ExceptionLogMethod)">
+            <summary>
+            Attach your debugger/console
+            </summary>
+            <param name="_log">your log/debug method</param>
+            <param name="_warning">your warn log method</param>
+            <param name="_error">your error log method</param>
+            <param name="_exception">your excpetion log method</param>
+        </member>
+        <member name="M:REP2P.P2PLogger.Log(System.String)">
+            <summary>
+            Log
+            </summary>
+            <param name="_log">log</param>
+        </member>
+        <member name="M:REP2P.P2PLogger.Warning(System.String)">
+            <summary>
+            Warning
+            </summary>
+            <param name="_log">warning</param>
+        </member>
+        <member name="M:REP2P.P2PLogger.Error(System.String)">
+            <summary>
+            Error
+            </summary>
+            <param name="_log">error</param>
+        </member>
+        <member name="M:REP2P.P2PLogger.Exception(System.Exception)">
+            <summary>
+            Exception
+            </summary>
+            <param name="_exception">exception</param>
+        </member>
+        <member name="T:REP2P.P2PMessage">
+            <summary>
+            P2P Message that will be send across the P2P Mesh Network
+            </summary>
+        </member>
+        <member name="F:REP2P.P2PMessage.messageId">
+            <summary>
+            your message id
+            </summary>
+        </member>
+        <member name="M:REP2P.P2PMessage.#ctor">
+            <summary>Creates a new empty packet (without an ID).</summary>
+        </member>
+        <member name="M:REP2P.P2PMessage.#ctor(System.Int32)">
+            <summary>Creates a new packet with a given ID. Used for sending.</summary>
+            <param name="_id">The packet ID.</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.#ctor(System.Byte[])">
+            <summary>Creates a packet from which data can be read. Used for receiving.</summary>
+            <param name="_data">The bytes to add to the packet.</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.SetBytes(System.Byte[])">
+            <summary>Sets the packet's content and prepares it to be read.</summary>
+            <param name="_data">The bytes to add to the packet.</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.WriteLength">
+            <summary>Inserts the length of the packet's content at the start of the buffer.</summary>
+        </member>
+        <member name="M:REP2P.P2PMessage.InsertInt(System.Int32)">
+            <summary>Inserts the given int at the start of the buffer.</summary>
+            <param name="_value">The int to insert.</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.ToArray">
+            <summary>Gets the packet's content in array form.</summary>
+        </member>
+        <member name="M:REP2P.P2PMessage.Length">
+            <summary>Gets the length of the packet's content.</summary>
+        </member>
+        <member name="M:REP2P.P2PMessage.UnreadLength">
+            <summary>Gets the length of the unread data contained in the packet.</summary>
+        </member>
+        <member name="M:REP2P.P2PMessage.Reset(System.Boolean)">
+            <summary>Resets the packet instance to allow it to be reused.</summary>
+            <param name="_shouldReset">Whether or not to reset the packet.</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.Write(System.Byte)">
+            <summary>Adds a byte to the packet.</summary>
+            <param name="_value">The byte to add.</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.Write(System.Byte[],System.Boolean)">
+            <summary>Adds an array of bytes to the packet.</summary>
+            <param name="_value">The byte array to add.</param>
+            <param name="_writeLength">write the length from the array</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.Write(System.Int16)">
+            <summary>Adds a short to the packet.</summary>
+            <param name="_value">The short to add.</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.Write(System.Int32)">
+            <summary>Adds an int to the packet.</summary>
+            <param name="_value">The int to add.</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.Write(System.Int64)">
+            <summary>Adds a long to the packet.</summary>
+            <param name="_value">The long to add.</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.Write(System.Single)">
+            <summary>Adds a float to the packet.</summary>
+            <param name="_value">The float to add.</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.Write(System.Double)">
+            <summary>Adds a double to the packet.</summary>
+            <param name="_value">The double to add.</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.Write(System.Boolean)">
+            <summary>Adds a bool to the packet.</summary>
+            <param name="_value">The bool to add.</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.Write(System.String)">
+            <summary>Adds a string to the packet.</summary>
+            <param name="_value">The string to add.</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.ReadByte(System.Boolean)">
+            <summary>Reads a byte from the packet.</summary>
+            <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.ReadBytes">
+            <summary>Reads an array of bytes from the packet.</summary>
+        </member>
+        <member name="M:REP2P.P2PMessage.ReadBytes(System.Int32,System.Boolean)">
+            <summary>Reads an array of bytes from the packet.</summary>
+            <param name="_length">The length of the byte array.</param>
+            <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.ReadShort(System.Boolean)">
+            <summary>Reads a short from the packet.</summary>
+            <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.ReadInt(System.Boolean)">
+            <summary>Reads an int from the packet.</summary>
+            <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.ReadLong(System.Boolean)">
+            <summary>Reads a long from the packet.</summary>
+            <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.ReadFloat(System.Boolean)">
+            <summary>Reads a float from the packet.</summary>
+            <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.ReadDouble(System.Boolean)">
+            <summary>Reads a double from the packet.</summary>
+            <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.ReadBool(System.Boolean)">
+            <summary>Reads a bool from the packet.</summary>
+            <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.ReadString(System.Boolean)">
+            <summary>Reads a string from the packet.</summary>
+            <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
+        </member>
+        <member name="M:REP2P.P2PMessage.Dispose(System.Boolean)">
+            <summary>
+            Dispose this after use
+            </summary>
+            <param name="_disposing"></param>
+        </member>
+        <member name="M:REP2P.P2PMessage.Dispose">
+            <summary>
+            Dispose this after use
+            </summary>
+        </member>
+        <member name="T:REP2P.P2PMessageReceived">
+            <summary>
+            Method for when you receive a message
+            </summary>
+            <param name="sender"></param>
+            <param name="message"></param>
+        </member>
+        <member name="T:REP2P.P2PMessageReceivedEventArgs">
+            <summary>
+            event args when you get a message
+            </summary>
+        </member>
+        <member name="F:REP2P.P2PMessageReceivedEventArgs.sender">
+            <summary>
+            message sender
+            </summary>
+        </member>
+        <member name="F:REP2P.P2PMessageReceivedEventArgs.messageId">
+            <summary>
+            message id from message
+            </summary>
+        </member>
+        <member name="F:REP2P.P2PMessageReceivedEventArgs.message">
+            <summary>
+            message sent
+            </summary>
+        </member>
+        <member name="M:REP2P.P2PMessageReceivedEventArgs.#ctor(REP2P.P2PConnection,System.Int32,REP2P.P2PMessage)">
+            <summary>
+             event args when you get a message
+            </summary>
+            <param name="_sender">message sender</param>
+            <param name="_messageId">message id</param>
+            <param name="_message">message sent</param>
+        </member>
+        <member name="T:REP2P.P2PNetwork">
+            <summary>
+            Class that handles the Connections/Data transfer between peers in a p2p mesh
+            </summary>
+        </member>
+        <member name="P:REP2P.P2PNetwork.instance">
+            <summary>
+            The Network Transport
+            </summary>
+        </member>
+        <member name="E:REP2P.P2PNetwork.MessageReceived">
+            <summary>
+            Message Received Event
+            </summary>
+        </member>
+        <member name="F:REP2P.P2PNetwork.Connections">
+            <summary>
+            All the Connections in the session
+            </summary>
+        </member>
+        <member name="P:REP2P.P2PNetwork.Connection">
+            <summary>
+            Your local connection
+            </summary>
+        </member>
+        <member name="P:REP2P.P2PNetwork.Debug">
+            <summary>
+            Allow Debug Logs
+            </summary>
+        </member>
+        <member name="M:REP2P.P2PNetwork.Initialize(REP2P.P2PTransport)">
+            <summary>
+            Initialize the P2P Network
+            </summary>
+            <param name="transport">Your selected transport</param>
+        </member>
+        <member name="M:REP2P.P2PNetwork.StartGame(System.Int32,REP2P.P2PVisibility)">
+            <summary>
+            Starts a session
+            </summary>
+            <param name="maxConnections">Max Connections to that session</param>
+            <param name="visibility">the privacy of that session</param>
+        </member>
+        <member name="M:REP2P.P2PNetwork.Connect(System.String)">
+            <summary>
+            Connects to a session
+            </summary>
+            <param name="address">session address</param>
+        </member>
+        <member name="M:REP2P.P2PNetwork.SendToAll(REP2P.P2PMessage,REP2P.P2PSendMode,System.Boolean)">
+            <summary>
+            Send a message to every one in the session
+            </summary>
+            <param name="message">your message</param>
+            <param name="sendMode">how reliable</param>
+            <param name="shouldRelease">dispose after use</param>
+        </member>
+        <member name="M:REP2P.P2PNetwork.Send(System.Int32,REP2P.P2PMessage,REP2P.P2PSendMode,System.Boolean)">
+            <summary>
+            Send a message to a client
+            </summary>
+            <param name="target">your target</param>
+            <param name="message">your message</param>
+            <param name="sendMode">how reliable</param>
+            <param name="shouldRelease">dispose after use</param>
+        </member>
+        <member name="M:REP2P.P2PNetwork.Send(REP2P.P2PConnection,REP2P.P2PMessage,REP2P.P2PSendMode,System.Boolean)">
+            <summary>
+            Send a message to a client
+            </summary>
+            <param name="target">your target</param>
+            <param name="message">your message</param>
+            <param name="sendMode">how reliable</param>
+            <param name="shouldRelease">dispose after use</param>
+        </member>
+        <member name="T:REP2P.P2PSendMode">
+            <summary>
+            Message Reliablity
+            </summary>
+        </member>
+        <member name="F:REP2P.P2PSendMode.Reliable">
+            <summary>
+            slower but guarantees the message being sent
+            </summary>
+        </member>
+        <member name="F:REP2P.P2PSendMode.Unreliable">
+            <summary>
+            faster but no guarantees
+            </summary>
+        </member>
+        <member name="T:REP2P.P2PTransport">
+            <summary>
+            P2P Transport template
+            </summary>
+        </member>
+        <member name="E:REP2P.P2PTransport.StartedGame">
+            <summary>
+            invokes when a session starts
+            </summary>
+        </member>
+        <member name="E:REP2P.P2PTransport.Connected">
+            <summary>
+            invokes when connected
+            </summary>
+        </member>
+        <member name="E:REP2P.P2PTransport.Disconnected">
+            <summary>
+            invokes when disconnected
+            </summary>
+        </member>
+        <member name="E:REP2P.P2PTransport.ConnectionFailed">
+            <summary>
+            invokes when connection fails
+            </summary>
+        </member>
+        <member name="E:REP2P.P2PTransport.ClientConnected">
+            <summary>
+            invokes when remote client connected
+            </summary>
+        </member>
+        <member name="E:REP2P.P2PTransport.ClientDisconnected">
+            <summary>
+            invokes when remote client disconnected
+            </summary>
+        </member>
+        <member name="E:REP2P.P2PTransport.DataReceived">
+            <summary>
+            invokes when data received
+            </summary>
+        </member>
+        <member name="P:REP2P.P2PTransport.IsHost">
+            <summary>
+            are you host?
+            </summary>
+        </member>
+        <member name="P:REP2P.P2PTransport.IsConnected">
+            <summary>
+            are you connected
+            </summary>
+        </member>
+        <member name="P:REP2P.P2PTransport.Host">
+            <summary>
+            host's connection
+            </summary>
+        </member>
+        <member name="M:REP2P.P2PTransport.StartGame(System.Int32,REP2P.P2PVisibility)">
+            <summary>
+            starts the game
+            </summary>
+            <param name="maxConnections">max connections</param>
+            <param name="visibility">how visible</param>
+        </member>
+        <member name="M:REP2P.P2PTransport.Connect(System.String,REP2P.P2PConnection@,System.String@)">
+            <summary>
+            connects to game
+            </summary>
+            <param name="address">end address</param>
+            <param name="connection">your connection</param>
+            <param name="connectError">your connection error</param>
+        </member>
+        <member name="M:REP2P.P2PTransport.Poll">
+            <summary>
+            Updates the network transport state
+            </summary>
+        </member>
+        <member name="M:REP2P.P2PTransport.Disconnect">
+            <summary>
+            Disconnects you from the session
+            </summary>
+        </member>
+        <member name="T:REP2P.P2PVisibility">
+            <summary>
+            The visibility of your P2P Session in a Session Browser
+            </summary>
+        </member>
+        <member name="F:REP2P.P2PVisibility.Public">
+            <summary>
+            Public Session
+            </summary>
+        </member>
+        <member name="F:REP2P.P2PVisibility.FriendsOnly">
+            <summary>
+            Friends Only Session
+            </summary>
+        </member>
+        <member name="F:REP2P.P2PVisibility.Private">
+            <summary>
+            Private Session
+            </summary>
+        </member>
+    </members>
+</doc>

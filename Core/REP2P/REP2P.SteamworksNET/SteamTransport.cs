@@ -17,7 +17,7 @@ namespace REP2P.SteamworksNET
 
         public P2PConnection Host => GetConnection(SteamMatchmaking.GetLobbyOwner(CurrentLobby));
 
-        public event EventHandler Listened;
+        public event EventHandler StartedGame;
         public event EventHandler Connected;
         public event EventHandler Disconnected;
         public event EventHandler ConnectionFailed;
@@ -67,7 +67,7 @@ namespace REP2P.SteamworksNET
             if (param.m_eResult == EResult.k_EResultOK)
             {
                 CurrentLobby = (CSteamID)param.m_ulSteamIDLobby;
-                Listened?.Invoke(this, EventArgs.Empty);
+                StartedGame?.Invoke(this, EventArgs.Empty);
             }
             else
             {
@@ -90,7 +90,7 @@ namespace REP2P.SteamworksNET
             }
         }
 
-        public void Listen(int maxConnections, P2PVisibility visibility = P2PVisibility.Public)
+        public void StartGame(int maxConnections, P2PVisibility visibility = P2PVisibility.Public)
         {
             ELobbyType lobbyType = ELobbyType.k_ELobbyTypePublic;
             switch (visibility)
