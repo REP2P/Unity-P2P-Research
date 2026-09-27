@@ -10,6 +10,7 @@ namespace REP2P
         private static int nextClientId { get => _nextClientId++; }
         public static event EventHandler<P2PMessageReceivedEventArgs> MessageReceived;
         public static readonly Dictionary<int, P2PConnection> Connections = new Dictionary<int, P2PConnection>();
+        public static P2PConnection Connection { get; private set; } = null;
         public static bool Debug { get; set; }
         public static void Initialize(P2PTransport transport)
         {
@@ -28,6 +29,7 @@ namespace REP2P
         }
         private static void Instance_Disconnected(object sender, EventArgs e)
         {
+            Connection = null;
             P2PLogger.Log("Disconnected!");
         }
 
@@ -51,7 +53,13 @@ namespace REP2P
             message.Dispose();
             if (Debug) P2PLogger.Log($"Received Message {message.messageId} from Client {e.sender.Id}");
         }
-
+        public static void Listen(int maxConnections = 10, P2PVisibility visibility = P2PVisibility.Public) => instance.Listen(maxConnections, visibility);
+        public static void Connect(string address) {
+            P2PConnection connection = null;
+            instance.Connect(address, out connection, out string error);
+            if(string.IsNullOrEmpty(error)) P2PLogger.Error(error);
+            Connection = connection;
+        }
         public static void SendToAll(P2PMessage message, P2PSendMode sendMode, bool shouldRelease = true)
         {
             if (Debug) P2PLogger.Log($"Sending Message {message.messageId} to all clients");

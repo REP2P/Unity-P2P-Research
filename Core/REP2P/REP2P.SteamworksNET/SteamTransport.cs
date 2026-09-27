@@ -77,9 +77,17 @@ namespace REP2P.SteamworksNET
 
         public void Connect(string address, out P2PConnection connection, out string connectError)
         {
-            var result = SteamMatchmaking.JoinLobby((CSteamID)ulong.Parse(address));
-            connection = new SteamConnection(SteamUser.GetSteamID());
-            connectError = result.ToString();
+            try
+            {
+                var result = SteamMatchmaking.JoinLobby((CSteamID)ulong.Parse(address));
+                connection = new SteamConnection(SteamUser.GetSteamID());
+                connectError = "";
+            }
+            catch (Exception ex)
+            {
+                connection = null;
+                connectError = ex.Message;
+            }
         }
 
         public void Listen(int maxConnections, P2PVisibility visibility = P2PVisibility.Public)
