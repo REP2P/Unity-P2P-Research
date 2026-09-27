@@ -22,7 +22,7 @@ namespace REP2P
         /// <summary>
         /// Message Received Event
         /// </summary>
-        public static event EventHandler<P2PMessageReceivedEventArgs> MessageReceived;
+        public static event P2PMessageReceivedDelegate MessageReceived;
         /// <summary>
         /// All the Connections in the session
         /// </summary>
@@ -46,6 +46,7 @@ namespace REP2P
             instance = transport;
             instance.ClientConnected += Instance_ClientConnected;
             instance.ClientDisconnected += Instance_ClientDisconnected;
+            instance.StartedGame += Instance_StartedGame;
             instance.Connected += Instance_Connected;
             instance.Disconnected += Instance_Disconnected;
             instance.DataReceived += Instance_DataReceived;
@@ -96,36 +97,39 @@ namespace REP2P
                 .Where(m => m.GetCustomAttributes(typeof(P2PMessageHandlerAttribute), false).Length > 0)
                 .ToArray();
         }
-
-        private static void Instance_Connected(object sender, EventArgs e)
+        private static void Instance_StartedGame()
+        {
+            P2PLogger.Log("Started Game!");
+        }
+        private static void Instance_Connected()
         {
             P2PLogger.Log("Connected!");
         }
-        private static void Instance_Disconnected(object sender, EventArgs e)
+        private static void Instance_Disconnected()
         {
             Connection = null;
             P2PLogger.Log("Disconnected!");
         }
 
-        private static void Instance_ClientConnected(object sender, P2PConnection e)
+        private static void Instance_ClientConnected(P2PConnection connection)
         {
-            e.Id = nextClientId;
-            Connections.Add(e.Id, e);
-            P2PLogger.Log($"Client {e.Id} Connected!");
+            connection.Id = nextClientId;
+            Connections.Add(connection.Id, connection);
+            P2PLogger.Log($"Client {connection.Id} Connected!");
         }
 
-        private static void Instance_ClientDisconnected(object sender, P2PConnection e)
+        private static void Instance_ClientDisconnected(P2PConnection connection)
         {
-            Connections.Remove(e.Id);
-            P2PLogger.Log($"Client {e.Id} Disconnected!");
+            Connections.Remove(connection.Id);
+            P2PLogger.Log($"Client {connection.Id} Disconnected!");
         }
 
-        private static void Instance_DataReceived(object sender, P2PDataReceivedEventArgs e)
+        private static void Instance_DataReceived(P2PConnection sender, byte[] data)
         {
-            P2PMessage message = new P2PMessage(e.data);
-            MessageReceived?.Invoke(sender, new P2PMessageReceivedEventArgs(e.sender, message.messageId, message));
+            P2PMessage message = new P2PMessage(data);
+            MessageReceived?.Invoke(sender, message.messageId, message);
             message.Dispose();
-            if (Debug) P2PLogger.Log($"Received Message {message.messageId} from Client {e.sender.Id}");
+            if (Debug) P2PLogger.Log($"Received Message {message.messageId} from Client {sender.Id}");
         }
         /// <summary>
         /// Starts a session
@@ -174,5 +178,15 @@ namespace REP2P
         /// <param name="sendMode">how reliable</param>
         /// <param name="shouldRelease">dispose after use</param>
         public static void Send(P2PConnection target, P2PMessage message, P2PSendMode sendMode, bool shouldRelease = true) => Send(target.Id, message, sendMode, shouldRelease);
+
+        /// <summary>
+        /// Updates the Network, Put this in an update function or while loop
+        /// </summary>
+        public static void Poll() => instance.Poll();
+
+        /// <summary>
+        /// Disconnects from current session
+        /// </summary>
+        public static void Disconnect() => instance.Disconnect();
     }
 }

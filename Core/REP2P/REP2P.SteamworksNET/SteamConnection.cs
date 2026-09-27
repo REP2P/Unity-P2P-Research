@@ -14,7 +14,8 @@ namespace REP2P.SteamworksNET
 
         public CSteamID SteamID { get; protected set; }
         internal SteamConnection(CSteamID id) {
-            SteamID = id;
+            SteamID = id; 
+            P2PLogger.Log($"Created Connection for {SteamID.m_SteamID}");
         }
         protected override void Send(byte[] data, P2PSendMode sendMode)
         {

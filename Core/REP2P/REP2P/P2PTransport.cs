@@ -11,31 +11,31 @@ namespace REP2P
         /// <summary>
         /// invokes when a session starts
         /// </summary>
-        public event EventHandler StartedGame;
+        public event Action StartedGame;
         /// <summary>
         /// invokes when connected
         /// </summary>
-        public event EventHandler Connected;
+        public event Action Connected;
         /// <summary>
         /// invokes when disconnected
         /// </summary>
-        public event EventHandler Disconnected;
+        public event Action Disconnected;
         /// <summary>
         /// invokes when connection fails
         /// </summary>
-        public event EventHandler ConnectionFailed;  
+        public event Action ConnectionFailed;  
         /// <summary>
         /// invokes when remote client connected
         /// </summary>
-        public event EventHandler<P2PConnection> ClientConnected;
+        public event Action<P2PConnection> ClientConnected;
         /// <summary>
         /// invokes when remote client disconnected
         /// </summary>
-        public event EventHandler<P2PConnection> ClientDisconnected;
+        public event Action<P2PConnection> ClientDisconnected;
         /// <summary>
         /// invokes when data received
         /// </summary>
-        public event EventHandler<P2PDataReceivedEventArgs> DataReceived;
+        public event P2PDataReceivedDelegate DataReceived;
 
         /// <summary>
         /// are you host?
