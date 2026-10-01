@@ -17,8 +17,7 @@ namespace REP2P
         /// The Network Transport
         /// </summary>
         public static P2PTransport instance { get; private set; }
-        private static int _nextClientId = 0;
-        private static int nextClientId { get => _nextClientId++; }
+
         /// <summary>
         /// Message Received Event
         /// </summary>
@@ -42,16 +41,27 @@ namespace REP2P
         public static void Initialize(P2PTransport transport)
         {
             instance = null;
-            _nextClientId = 0;
             instance = transport;
             instance.ClientConnected += Instance_ClientConnected;
             instance.ClientDisconnected += Instance_ClientDisconnected;
-            instance.StartedGame += Instance_StartedGame;
-            instance.Connected += Instance_Connected;
+            instance.Created += Instance_Created;
+            instance.Joined += Instance_Joined;
             instance.Disconnected += Instance_Disconnected;
             instance.DataReceived += Instance_DataReceived;
             CreateMessageHandlersDictionary();
         }
+
+        /// <summary>
+        /// Are you host?
+        /// </summary>
+        /// <returns>true if host</returns>
+        public static bool IsHost() => instance.IsHost;
+
+        /// <summary>
+        /// Are you host?
+        /// </summary>
+        /// <returns>true if host</returns>
+        public static bool IsConnected() => instance.IsConnected;
 
         private static Dictionary<int, P2PMessageHandler> messageHandlers;
 
@@ -97,13 +107,13 @@ namespace REP2P
                 .Where(m => m.GetCustomAttributes(typeof(P2PMessageHandlerAttribute), false).Length > 0)
                 .ToArray();
         }
-        private static void Instance_StartedGame()
+        private static void Instance_Created()
         {
-            P2PLogger.Log("Started Game!");
+            P2PLogger.Log("Created Session!");
         }
-        private static void Instance_Connected()
+        private static void Instance_Joined()
         {
-            P2PLogger.Log("Connected!");
+            P2PLogger.Log("Joined Session!");
         }
         private static void Instance_Disconnected()
         {
@@ -113,7 +123,6 @@ namespace REP2P
 
         private static void Instance_ClientConnected(P2PConnection connection)
         {
-            connection.Id = nextClientId;
             Connections.Add(connection.Id, connection);
             P2PLogger.Log($"Client {connection.Id} Connected!");
         }
@@ -126,24 +135,25 @@ namespace REP2P
 
         private static void Instance_DataReceived(P2PConnection sender, byte[] data)
         {
-            P2PMessage message = new P2PMessage(data);
-            MessageReceived?.Invoke(sender, message.messageId, message);
-            message.Dispose();
-            if (Debug) P2PLogger.Log($"Received Message {message.messageId} from Client {sender.Id}");
+            using (P2PMessage message = new P2PMessage(data))
+            {
+                MessageReceived?.Invoke(sender, message.messageId, message);
+                if (Debug) P2PLogger.Log($"Received Message {message.messageId} from Client {sender.Id}");
+            }
         }
         /// <summary>
-        /// Starts a session
+        /// Creates session
         /// </summary>
-        /// <param name="maxConnections">Max Connections to that session</param>
+        /// <param name="maxConnections">Max Connections to the session</param>
         /// <param name="visibility">the privacy of that session</param>
-        public static void StartGame(int maxConnections = 10, P2PVisibility visibility = P2PVisibility.Public) => instance.StartGame(maxConnections, visibility);
+        public static void CreateSession(int maxConnections = 10, P2PVisibility visibility = P2PVisibility.Public) => instance.CreateSession(maxConnections, visibility);
         /// <summary>
         /// Connects to a session
         /// </summary>
         /// <param name="address">session address</param>
-        public static void Connect(string address) {
+        public static void JoinSession(string address) {
             P2PConnection connection = null;
-            instance.Connect(address, out connection, out string error);
+            instance.JoinSession(address, out connection, out string error);
             if(string.IsNullOrEmpty(error)) P2PLogger.Error(error);
             Connection = connection;
         }
@@ -169,7 +179,7 @@ namespace REP2P
         /// <param name="message">your message</param>
         /// <param name="sendMode">how reliable</param>
         /// <param name="shouldRelease">dispose after use</param>
-        public static void Send(int target, P2PMessage message, P2PSendMode sendMode, bool shouldRelease = true) => Connections[target].Send(message, sendMode, shouldRelease);
+        public static void Send(string target, P2PMessage message, P2PSendMode sendMode, bool shouldRelease = true) => Connections[target].Send(message, sendMode, shouldRelease);
         /// <summary>
         /// Send a message to a client
         /// </summary>

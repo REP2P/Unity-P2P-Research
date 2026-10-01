@@ -11,11 +11,11 @@ namespace REP2P
         /// <summary>
         /// invokes when a session starts
         /// </summary>
-        public event Action StartedGame;
+        public event Action Created;
         /// <summary>
         /// invokes when connected
         /// </summary>
-        public event Action Connected;
+        public event Action<P2PConnection> Joined;
         /// <summary>
         /// invokes when disconnected
         /// </summary>
@@ -54,14 +54,14 @@ namespace REP2P
         /// </summary>
         /// <param name="maxConnections">max connections</param>
         /// <param name="visibility">how visible</param>
-        public void StartGame(int maxConnections, P2PVisibility visibility = P2PVisibility.Public);
+        public void CreateSession(int maxConnections, P2PVisibility visibility = P2PVisibility.Public);
         /// <summary>
-        /// connects to game
+        /// Joins a session
         /// </summary>
         /// <param name="address">end address</param>
         /// <param name="connection">your connection</param>
         /// <param name="connectError">your connection error</param>
-        public void Connect(string address, out P2PConnection connection, out string connectError);
+        public void JoinSession(string address, out P2PConnection connection, out string connectError);
 
         /// <summary>
         /// Updates the network transport state
@@ -71,5 +71,17 @@ namespace REP2P
         /// Disconnects you from the session
         /// </summary>
         public void Disconnect();
+
+        /// <summary>
+        /// Sets a data for the session
+        /// </summary>
+        /// <param name="key">the key of the data</param>
+        /// <param name="value">the value of the data</param>
+        public void SetSessionData(string key, string value);
+        /// <summary>
+        /// Returns the data from the session
+        /// </summary>
+        /// <param name="key">the key of the data</param>
+        public string GetSessionData(string key);
     }
 }

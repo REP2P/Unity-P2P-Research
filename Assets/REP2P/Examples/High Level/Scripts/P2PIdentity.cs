@@ -32,7 +32,7 @@ public class P2PIdentity : MonoBehaviour
 
     }
 
-    public void SendRpc(byte rpc, P2PConnection connection, P2PStream stream, P2PSend send = P2PSend.Unreliable)
+    public void SendRpc(byte rpc, P2PConnection connection, P2PMessage stream, P2PSendMode send = P2PSend.Unreliable)
     { 
         P2PNetworkManager.SendRpc(netId, connection, rpc, stream, send);
     }

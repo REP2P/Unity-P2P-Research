@@ -17,8 +17,8 @@ namespace REP2P.SteamworksNET
 
         public P2PConnection Host => GetConnection(SteamMatchmaking.GetLobbyOwner(CurrentLobby));
 
-        public event Action StartedGame;
-        public event Action Connected;
+        public event Action Created;
+        public event Action<P2PConnection> Joined;
         public event Action Disconnected;
         public event Action ConnectionFailed;
         public event Action<P2PConnection> ClientConnected;
@@ -58,8 +58,16 @@ namespace REP2P.SteamworksNET
         private void OnLobbyEnter(LobbyEnter_t param)
         {
             CurrentLobby = (CSteamID)param.m_ulSteamIDLobby;
-
-            Connected?.Invoke();
+            int length = SteamMatchmaking.GetNumLobbyMembers(CurrentLobby);
+            for (int i = 0; i < length; i++)
+            {
+                CSteamID memberId = SteamMatchmaking.GetLobbyMemberByIndex(CurrentLobby, i);
+                if (memberId != SteamUser.GetSteamID())
+                {
+                    ClientConnected?.Invoke(CreateConnection(memberId));
+                }
+            }
+            Joined?.Invoke(CreateConnection(SteamUser.GetSteamID()));
         }
 
         private void OnLobbyCreated(LobbyCreated_t param)
@@ -67,7 +75,7 @@ namespace REP2P.SteamworksNET
             if (param.m_eResult == EResult.k_EResultOK)
             {
                 CurrentLobby = (CSteamID)param.m_ulSteamIDLobby;
-                StartedGame?.Invoke();
+                Created?.Invoke();
             }
             else
             {
@@ -75,7 +83,7 @@ namespace REP2P.SteamworksNET
             }  
         }
 
-        public void Connect(string address, out P2PConnection connection, out string connectError)
+        public void JoinSession(string address, out P2PConnection connection, out string connectError)
         {
             P2PLogger.Log("Connecting!");
             try
@@ -91,7 +99,7 @@ namespace REP2P.SteamworksNET
             }
         }
 
-        public void StartGame(int maxConnections, P2PVisibility visibility = P2PVisibility.Public)
+        public void CreateSession(int maxConnections, P2PVisibility visibility = P2PVisibility.Public)
         {
             P2PLogger.Log("Starting Game!");
             ELobbyType lobbyType = ELobbyType.k_ELobbyTypePublic;
@@ -178,6 +186,16 @@ namespace REP2P.SteamworksNET
             SteamMatchmaking.LeaveLobby(CurrentLobby);
             CurrentLobby = CSteamID.Nil;
             Disconnected?.Invoke();
+        }
+
+        public void SetSessionData(string key, string value)
+        {
+            SteamMatchmaking.SetLobbyData(CurrentLobby, key, value);
+        }
+
+        public string GetSessionData(string key)
+        {
+            return SteamMatchmaking.GetLobbyData(CurrentLobby, key);
         }
     }
 }

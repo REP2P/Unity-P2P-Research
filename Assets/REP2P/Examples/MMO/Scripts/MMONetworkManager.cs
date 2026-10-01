@@ -1,9 +1,10 @@
 ﻿using REP2P;
-using REP2P.Steam;
+using REP2P.SteamworksNET;
 using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,17 +15,18 @@ public class MMONetworkManager : MonoBehaviour
     public Transform localPlayerInstance;
     public GameObject remotePlayerPrefab;
     public GameObject chatBubblePrefab;
-    public Dictionary<P2PConnection, GameObject> remotePlayers;
+    public static GameObject ChatBubblePrefab { get; private set; }
+    public static Dictionary<P2PConnection, GameObject> remotePlayers;
     private void Start()
     {
-        SteamClient.Init(480);
+        SteamAPI.Init();
+        ChatBubblePrefab = chatBubblePrefab;
         remotePlayers = new Dictionary<P2PConnection, GameObject>();
-        P2PNetwork.Initialize(new SteamLayer());
-        P2PNetwork.SubscribePacketHandler(HandlePackets);
-        P2PNetwork.OnCreatedSession += OnCreatedSession;
-        P2PNetwork.OnConnected += OnConnected;
-        P2PNetwork.OnClientConnected += OnClientConnected;
-        P2PNetwork.OnClientDisconnected += OnClientDisconnected;
+        P2PNetwork.Initialize(new SteamTransport());
+        P2PNetwork.instance.Created += OnCreatedSession;
+        P2PNetwork.instance.Joined += OnConnected;
+        P2PNetwork.instance.ClientConnected += OnClientConnected;
+        P2PNetwork.instance.ClientDisconnected += OnClientDisconnected;
     }
 
     private void OnCreatedSession()
@@ -44,8 +46,7 @@ public class MMONetworkManager : MonoBehaviour
             case 0:
                 using (P2PStream stream = P2PStream.Create(packet.packetBytes))
                 {
-                    Vector3 position = stream.ReadVector3();
-                    remotePlayers[sender].transform.position = position;
+                    
                 }      
                 break;
             case 1:
@@ -57,37 +58,43 @@ public class MMONetworkManager : MonoBehaviour
         
     }
 
+    [P2PMessageHandler(0)]
+    public static void HandleMovement(P2PConnection sender, P2PMessage message)
+    {
+        Vector3 position = message.ReadVector3();
+        remotePlayers[sender].transform.position = position;
+    }
+
     private void OnClientDisconnected(P2PConnection connection)
     {
-        Debug.Log($"{connection.connectionId} Disconnected!");
+        Debug.Log($"{connection.Id} Disconnected!");
         Destroy(remotePlayers[connection]);
         remotePlayers.Remove(connection);
     }
 
     private void OnClientConnected(P2PConnection connection)
     {
-        Debug.Log($"{connection.connectionId} Connected!");
+        Debug.Log($"{connection.Id} Connected!");
         var instance = Instantiate(remotePlayerPrefab);
         remotePlayers.Add(connection, instance);
     }
 
     private void OnApplicationQuit()
     {
-        P2PNetwork.DeInitialize();
-        SteamClient.Shutdown();
+        P2PNetwork.Disconnect();
     }
 
     public void CreateSession()
     {
         P2PNetwork.Disconnect();
-        P2PNetwork.Start(64, SteamStart.CreateDefault());
+        P2PNetwork.CreateSession(64, P2PVisibility.Public);
     }
 
     private void Update()
     {
-        SteamClient.RunCallbacks();
-        P2PNetwork.Update();
-        if(P2PNetwork.IsConnected) SyncPlayerMovement();
+        SteamAPI.RunCallbacks();
+        P2PNetwork.Poll();
+        if(P2PNetwork.instance.IsConnected) SyncPlayerMovement();
     }
 
     public InputField textChat; 

@@ -13,6 +13,7 @@ namespace REP2P.SteamworksNET
         public override bool IsConnected => SteamID.IsValid();
 
         public CSteamID SteamID { get; protected set; }
+
         internal SteamConnection(CSteamID id) {
             SteamID = id; 
             P2PLogger.Log($"Created Connection for {SteamID.m_SteamID}");
