@@ -4186,6 +4186,19 @@
             <param name="sendMode">how reliable</param>
             <param name="shouldRelease">dispose after use</param>
         </member>
+        <member name="M:REP2P.P2PNetwork.SetSessionData(System.String,System.String)">
+            <summary>
+            Sets the data for the current session
+            </summary>
+            <param name="key">the key of the data</param>
+            <param name="value">the value of the data</param>
+        </member>
+        <member name="M:REP2P.P2PNetwork.GetSessionData(System.String)">
+            <summary>
+            Retrieves current session data
+            </summary>
+            <param name="key">the key of the data</param>
+        </member>
         <member name="M:REP2P.P2PNetwork.Poll">
             <summary>
             Updates the Network, Put this in an update function or while loop

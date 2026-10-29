@@ -194,6 +194,20 @@ namespace REP2P
         /// <param name="shouldRelease">dispose after use</param>
         public static void Send(P2PConnection target, int messageId, NetDataWriter stream, P2PSendMode sendMode, bool shouldRelease = true) => target.Send(messageId, stream, sendMode, shouldRelease);
 
+
+        /// <summary>
+        /// Sets the data for the current session
+        /// </summary>
+        /// <param name="key">the key of the data</param>
+        /// <param name="value">the value of the data</param>
+        public static void SetSessionData(string key, string value) => instance.SetSessionData(key, value);
+
+        /// <summary>
+        /// Retrieves current session data
+        /// </summary>
+        /// <param name="key">the key of the data</param>
+        public static void GetSessionData(string key) => instance.GetSessionData(key);
+
         /// <summary>
         /// Updates the Network, Put this in an update function or while loop
         /// </summary>
