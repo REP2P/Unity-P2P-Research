@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using LiteNetLib.Utils;
 
 namespace REP2P
 {
@@ -8,6 +6,7 @@ namespace REP2P
     /// Method for when you receive a message
     /// </summary>
     /// <param name="sender"></param>
-    /// <param name="message"></param>
-    public delegate void P2PMessageHandler(P2PConnection sender, P2PMessage message);
+    /// <param name="messageId"></param>
+    /// <param name="stream"></param>
+    public delegate void P2PMessageHandler(P2PConnection sender, int messageId, NetDataReader stream);
 }

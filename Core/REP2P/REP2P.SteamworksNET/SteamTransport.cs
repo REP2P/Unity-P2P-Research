@@ -7,23 +7,23 @@ using System.Runtime.InteropServices;
 
 namespace REP2P.SteamworksNET
 {
-    // https://github.com/RugbugRedfern/Mycelium-Networking-For-Content-Warning/blob/master/MyceliumNetworkingForCW/MyceliumNetwork.cs
+    // The source code of https://github.com/RugbugRedfern/Mycelium-Networking-For-Content-Warning/ is used partially under the Attribution-NonCommercial-ShareAlike 4.0 International license
     public class SteamTransport : P2PTransport
     {
         public const int CHANNEL = 420;
-        public bool IsHost => IsConnected && SteamMatchmaking.GetLobbyOwner(CurrentLobby) == SteamUser.GetSteamID();
+        public bool isHost => isConnected && SteamMatchmaking.GetLobbyOwner(CurrentLobby) == SteamUser.GetSteamID();
         public static CSteamID CurrentLobby;
-        public bool IsConnected => CurrentLobby.IsValid();
+        public bool isConnected => CurrentLobby.IsValid();
 
-        public P2PConnection Host => GetConnection(SteamMatchmaking.GetLobbyOwner(CurrentLobby));
+        public P2PConnection host => GetConnection(SteamMatchmaking.GetLobbyOwner(CurrentLobby));
 
-        public event Action Created;
-        public event Action<P2PConnection> Joined;
-        public event Action Disconnected;
-        public event Action ConnectionFailed;
-        public event Action<P2PConnection> ClientConnected;
-        public event Action<P2PConnection> ClientDisconnected;
-        public event P2PDataReceivedDelegate DataReceived;
+        public event Action created;
+        public event Action<P2PConnection> joined;
+        public event Action disconnected;
+        public event Action connectionFailed;
+        public event Action<P2PConnection> clientConnected;
+        public event Action<P2PConnection> clientDisconnected;
+        public event P2PDataReceivedDelegate dataReceived;
 
         protected Callback<LobbyEnter_t> lobbyEntered;
         protected Callback<LobbyCreated_t> lobbyCreated;
@@ -44,13 +44,13 @@ namespace REP2P.SteamworksNET
             switch ((EChatMemberStateChange)param.m_rgfChatMemberStateChange)
             {
                 case EChatMemberStateChange.k_EChatMemberStateChangeEntered:
-                    ClientConnected?.Invoke(CreateConnection(steamID));
+                    clientConnected?.Invoke(CreateConnection(steamID));
                     break;
                 case EChatMemberStateChange.k_EChatMemberStateChangeLeft:
                 case EChatMemberStateChange.k_EChatMemberStateChangeDisconnected:
                 case EChatMemberStateChange.k_EChatMemberStateChangeKicked:
                 case EChatMemberStateChange.k_EChatMemberStateChangeBanned:
-                    ClientDisconnected?.Invoke(GetConnection(steamID));
+                    clientDisconnected?.Invoke(GetConnection(steamID));
                     break;
             }
         }
@@ -64,10 +64,10 @@ namespace REP2P.SteamworksNET
                 CSteamID memberId = SteamMatchmaking.GetLobbyMemberByIndex(CurrentLobby, i);
                 if (memberId != SteamUser.GetSteamID())
                 {
-                    ClientConnected?.Invoke(CreateConnection(memberId));
+                    clientConnected?.Invoke(CreateConnection(memberId));
                 }
             }
-            Joined?.Invoke(CreateConnection(SteamUser.GetSteamID()));
+            joined?.Invoke(CreateConnection(SteamUser.GetSteamID()));
         }
 
         private void OnLobbyCreated(LobbyCreated_t param)
@@ -75,31 +75,33 @@ namespace REP2P.SteamworksNET
             if (param.m_eResult == EResult.k_EResultOK)
             {
                 CurrentLobby = (CSteamID)param.m_ulSteamIDLobby;
-                Created?.Invoke();
+                created?.Invoke();
             }
             else
             {
-                ConnectionFailed?.Invoke();
+                connectionFailed?.Invoke();
             }  
         }
 
-        public void JoinSession(string address, out P2PConnection connection, out string connectError)
+        public P2PConnectionError Connect(string address, out P2PConnection connection, out string connectError)
         {
             P2PLogger.Log("Connecting!");
             try
             {
                 var result = SteamMatchmaking.JoinLobby((CSteamID)ulong.Parse(address));
-                connection = new SteamConnection(SteamUser.GetSteamID());
+                connection = new SteamConnection(SteamUser.GetSteamID());    
                 connectError = "";
+                return P2PConnectionError.None;
             }
             catch (Exception ex)
             {
                 connection = null;
                 connectError = ex.Message;
+                return P2PConnectionError.Unknown;
             }
         }
 
-        public void CreateSession(int maxConnections, P2PVisibility visibility = P2PVisibility.Public)
+        public void InitializeSession(int maxConnections, P2PVisibility visibility = P2PVisibility.Public)
         {
             P2PLogger.Log("Starting Game!");
             ELobbyType lobbyType = ELobbyType.k_ELobbyTypePublic;
@@ -128,7 +130,7 @@ namespace REP2P.SteamworksNET
         public void ReceiveMessages()
         {
             int count = SteamNetworkingMessages.ReceiveMessagesOnChannel(CHANNEL, outMessages, MAX_MESSAGES);
-            if (P2PNetwork.Debug && count > 0) P2PLogger.Log($"Inbound {count} Messages from SteamNetworkingMessages");
+            if (P2PNetwork.debug && count > 0) P2PLogger.Log($"Inbound {count} Messages from SteamNetworkingMessages");
             for (int i = 0; i < count; i++)
             {
                 IntPtr outMessage = outMessages[i];
@@ -163,7 +165,7 @@ namespace REP2P.SteamworksNET
                 Marshal.Copy(steamNetworkingMessage.m_pData, managedArray, 0, steamNetworkingMessage.m_cbSize);
                 try
                 {
-                    DataReceived(GetConnection(sender), managedArray);
+                    dataReceived(GetConnection(sender), managedArray);
                 }
                 catch (Exception ex)
                 {
@@ -174,7 +176,7 @@ namespace REP2P.SteamworksNET
             }
         }
 
-        public SteamConnection GetConnection(CSteamID id) => (SteamConnection)P2PNetwork.Connections.Values.First(x => (x as SteamConnection).SteamID == id);
+        public SteamConnection GetConnection(CSteamID id) => (SteamConnection)P2PNetwork.connections.Values.First(x => (x as SteamConnection).steamId == id);
         public SteamConnection CreateConnection(CSteamID steamID)
         {
             P2PLogger.Log($"Creating Connection for {steamID.m_SteamID}");
@@ -185,7 +187,7 @@ namespace REP2P.SteamworksNET
             P2PLogger.Log("Disconnecting!");
             SteamMatchmaking.LeaveLobby(CurrentLobby);
             CurrentLobby = CSteamID.Nil;
-            Disconnected?.Invoke();
+            disconnected?.Invoke();
         }
 
         public void SetSessionData(string key, string value)

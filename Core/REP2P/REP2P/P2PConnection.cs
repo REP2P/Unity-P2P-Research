@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
+﻿using LiteNetLib.Utils;
+using System;
 
 namespace REP2P
 {
@@ -13,27 +11,30 @@ namespace REP2P
         /// <summary>
         /// Their Id
         /// </summary>
-        public int Id { get; internal set; }
+        public Guid guid { get; internal set; }
         /// <summary>
         /// Are they the host?
         /// </summary>
-        public abstract bool IsHost { get; }
+        public abstract bool isHost { get; }
         /// <summary>
         /// Are they still with us?
         /// </summary>
-        public abstract bool IsConnected { get; }
+        public abstract bool isConnected { get; }
 
         /// <summary>
         /// Sends a message to that connection
         /// </summary>
-        /// <param name="message">your message to them</param>
+        /// <param name="messageId">message id</param>
+        /// <param name="stream">the stream being sent to connection</param>
         /// <param name="sendMode">is it reliable or nah</param>
         /// <param name="shouldRelease">disposes the message after use</param>
-        public void Send(P2PMessage message, P2PSendMode sendMode, bool shouldRelease = true)
+        public void Send(int messageId, NetDataWriter stream, P2PSendMode sendMode, bool shouldRelease = true)
         {
-            if (P2PNetwork.Debug) P2PLogger.Log($"Sending Message {message.messageId} to Client {Id}");
-            Send(message.ToArray(), sendMode);
-            message.Dispose();
+            NetDataWriter message = new NetDataWriter();
+            message.Put(messageId);
+            message.Put(stream.Data);
+            if (P2PNetwork.debug) P2PLogger.Log($"Sending Message {messageId} to Client {guid}");
+            Send(message.Data, sendMode);
         }
         /// <summary>
         /// low level message to that connection

@@ -14,13 +14,13 @@ namespace REP2P
         /// <summary>
         /// The ID of the Message
         /// </summary>
-        public readonly int MessageId;
+        public readonly int messageId;
         /// <summary>
         /// High Level Message Handler, Attach this to a static method which follows <see cref="P2PMessageHandler"/> principle
         /// </summary>
-        public P2PMessageHandlerAttribute(ushort messageId)
+        public P2PMessageHandlerAttribute(int messageId)
         {
-            MessageId = messageId;
+            this.messageId = messageId;
         }
     }
 }

@@ -1,6 +1,8 @@
+using LiteNetLib.Utils;
 using REP2P;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class P2PIdentity : MonoBehaviour
@@ -25,24 +27,21 @@ public class P2PIdentity : MonoBehaviour
 
     public void SerializeIdentity()
     {
-        using (P2PStream stream = P2PStream.Create())
-        {
-            observable.OnP2PSerialize(stream, true, new() { time = P2PNetworkManager.GetNetworkTime()});
-        }
-
+        NetDataWriter stream = new NetDataWriter();
+        observable.OnP2PSerialize(stream, new() { time = P2PNetworkManager.GetNetworkTime() });
+        // TODO: send it
     }
 
-    public void SendRpc(byte rpc, P2PConnection connection, P2PMessage stream, P2PSendMode send = P2PSend.Unreliable)
+    public void SendRpc(byte rpc, P2PConnection connection, NetDataWriter stream, P2PSendMode send = P2PSendMode.Unreliable)
     { 
         P2PNetworkManager.SendRpc(netId, connection, rpc, stream, send);
     }
-    public void SendRpc(byte rpc, P2PRPCReceivers receivers, P2PStream stream, P2PSend send = P2PSend.Unreliable)
+    public void SendRpc(byte rpc, P2PRPCReceivers receivers, NetDataWriter stream, P2PSendMode send = P2PSendMode.Unreliable)
     {
         switch (receivers)
         {
             case P2PRPCReceivers.All:
-                // Make sure to add a method that returns my connection too!
-                rpcs[rpc].Invoke(null, stream);
+                rpcs[rpc].Invoke(P2PNetwork.connection, new NetDataReader(stream.Data));
                 break;
         }
         P2PNetworkManager.SendRpc(netId, rpc, stream, send);
@@ -51,6 +50,6 @@ public class P2PIdentity : MonoBehaviour
 
     internal void OnRpcReceived(P2PConnection sender, byte rpc, byte[] data)
     {
-        rpcs[rpc].Invoke(sender, P2PStream.Create(data));
+        rpcs[rpc].Invoke(sender, new NetDataReader(data));
     }
 }

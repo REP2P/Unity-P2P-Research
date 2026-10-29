@@ -1,3 +1,4 @@
+using LiteNetLib.Utils;
 using REP2P;
 using System;
 using System.Collections;
@@ -20,24 +21,24 @@ public class P2PTransform : MonoBehaviour, P2PObservable
     void Update()
     {
         transform.position = Vector3.Lerp(transform.position, nextPosition, lerpSpeed * Time.deltaTime);
+        transform.rotation = Quaternion.Lerp(transform.rotation, nextRotation, lerpSpeed * Time.deltaTime);
+        transform.localScale = Vector3.Lerp(transform.localScale, nextScale, lerpSpeed * Time.deltaTime);
     }
 
-    public void OnP2PSerialize(P2PStream stream, bool write, P2PMessageInfo info)
+    public void OnP2PSerialize(NetDataWriter writer, P2PPacketInfo info)
     {
-        if (write)
-        {
-            if (syncPosition) stream.Write(transform.position);
-            if (syncRotation) stream.Write(transform.rotation);
-            if (syncScale) stream.Write(transform.localScale);
-        }
-        else
-        {
-            double receivedTimestamp = info.time;
-            if (receivedTimestamp < lastTimestamp || !info.isHost) return;
-            lastTimestamp = receivedTimestamp;
-            nextPosition = stream.ReadVector3();
-            nextRotation = stream.ReadQuaternion();
-            nextScale = stream.ReadVector3();
-        }      
+        if (syncPosition) writer.Put(transform.position);
+        if (syncRotation) writer.Put(transform.rotation);
+        if (syncScale) writer.Put(transform.localScale);
+    }
+
+    public void OnP2PDeserialize(NetDataReader reader, P2PPacketInfo info)
+    {
+        double receivedTimestamp = info.time;
+        if (receivedTimestamp < lastTimestamp || !info.isHost) return;
+        lastTimestamp = receivedTimestamp;
+        if (syncPosition) nextPosition = reader.GetVector3();
+        if (syncRotation) nextRotation = reader.GetQuaternion();
+        if (syncScale) nextScale = reader.GetVector3();
     }
 }

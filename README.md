@@ -1,10 +1,13 @@
 # Research for a Hybrid P2P Networking Solution
 
-<b>Look into the unity examples please!</b>
+<b>Look into the unity examples please, very sorry if it is not clear, i promise i will rework this in a future repo!!</b>
 
 Riptide-like networking library built around hybrid p2p!
 
 # Credits:
-- [Tom Weiland](https://github.com/tom-weiland) and [TCP-UDP-Networking](https://github.com/tom-weiland/tcp-udp-networking)
-- [Rug](https://github.com/RugbugRedfern) and [Mycelium](https://github.com/RugbugRedfern/Mycelium-Networking-For-Content-Warning/)
-- [Facepunch](https://github.com/Facepunch) and [Steamworks](https://github.com/Facepunch/Facepunch.Steamworks)
+- The source code of [TCP-UDP-Networking](https://github.com/tom-weiland/tcp-udp-networking) is used under the MIT license
+- The source code of [MyceliumNetworking](https://github.com/RugbugRedfern/Mycelium-Networking-For-Content-Warning/) is used under the Attribution-NonCommercial-ShareAlike 4.0 International license
+- The source code of [Facepunch.Steamworks](https://github.com/Facepunch/Facepunch.Steamworks) is used under the MIT license
+- The source code of [Steamworks.NET](https://github.com/rlabrecque/steamworks.net) is used under the MIT license
+- The source code of [LiteNetLib](https://github.com/RevenantX/LiteNetLib/) is used under the MIT license
+- The source code of [Riptide Networking](https://github.com/RiptideNetworking/Riptide) is used under the MIT license

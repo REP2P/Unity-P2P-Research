@@ -1,10 +1,9 @@
-﻿using System;
+﻿using LiteNetLib.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-// This file uses code from Riptide by Tom Weiland licensed under MIT
-// https://github.com/RiptideNetworking/Riptide/blob/main/LICENSE.md
 
 namespace REP2P
 {
@@ -21,19 +20,19 @@ namespace REP2P
         /// <summary>
         /// Message Received Event
         /// </summary>
-        public static event P2PMessageReceivedDelegate MessageReceived;
+        public static event P2PMessageReceivedDelegate messageReceived;
         /// <summary>
         /// All the Connections in the session
         /// </summary>
-        public static readonly Dictionary<int, P2PConnection> Connections = new Dictionary<int, P2PConnection>();
+        public static readonly Dictionary<Guid, P2PConnection> connections = new Dictionary<Guid, P2PConnection>();
         /// <summary>
         /// Your local connection
         /// </summary>
-        public static P2PConnection Connection { get; private set; } = null;
+        public static P2PConnection connection { get; private set; } = null;
         /// <summary>
         /// Allow Debug Logs
         /// </summary>
-        public static bool Debug { get; set; }
+        public static bool debug { get; set; }
         /// <summary>
         /// Initialize the P2P Network
         /// </summary>
@@ -42,12 +41,12 @@ namespace REP2P
         {
             instance = null;
             instance = transport;
-            instance.ClientConnected += Instance_ClientConnected;
-            instance.ClientDisconnected += Instance_ClientDisconnected;
-            instance.Created += Instance_Created;
-            instance.Joined += Instance_Joined;
-            instance.Disconnected += Instance_Disconnected;
-            instance.DataReceived += Instance_DataReceived;
+            instance.clientConnected += Instance_ClientConnected;
+            instance.clientDisconnected += Instance_ClientDisconnected;
+            instance.created += Instance_Created;
+            instance.joined += Instance_Joined;
+            instance.disconnected += Instance_Disconnected;
+            instance.dataReceived += Instance_DataReceived;
             CreateMessageHandlersDictionary();
         }
 
@@ -55,13 +54,13 @@ namespace REP2P
         /// Are you host?
         /// </summary>
         /// <returns>true if host</returns>
-        public static bool IsHost() => instance.IsHost;
+        public static bool isHost => instance.isHost;
 
         /// <summary>
         /// Are you host?
         /// </summary>
         /// <returns>true if host</returns>
-        public static bool IsConnected() => instance.IsConnected;
+        public static bool isConnected => instance.isConnected;
 
         private static Dictionary<int, P2PMessageHandler> messageHandlers;
 
@@ -84,13 +83,13 @@ namespace REP2P
                 if (p2pMessageHandler != null)
                 {
                     // It's a message handler for Server instances
-                    if (messageHandlers.ContainsKey(attribute.MessageId))
+                    if (messageHandlers.ContainsKey(attribute.messageId))
                     {
-                        MethodInfo otherMethodWithId = messageHandlers[attribute.MessageId].GetMethodInfo();
-                        P2PLogger.Error($"{attribute.MessageId} has a message handler already");
+                        MethodInfo otherMethodWithId = messageHandlers[attribute.messageId].GetMethodInfo();
+                        P2PLogger.Error($"{attribute.messageId} has a message handler already");
                     }
                     else
-                        messageHandlers.Add(attribute.MessageId, (P2PMessageHandler)p2pMessageHandler);
+                        messageHandlers.Add(attribute.messageId, (P2PMessageHandler)p2pMessageHandler);
                 }
             }
         }
@@ -111,83 +110,89 @@ namespace REP2P
         {
             P2PLogger.Log("Created Session!");
         }
-        private static void Instance_Joined()
+        private static void Instance_Joined(P2PConnection connection)
         {
+            connection.guid = Guid.NewGuid();
             P2PLogger.Log("Joined Session!");
         }
         private static void Instance_Disconnected()
         {
-            Connection = null;
+            connection = null;
             P2PLogger.Log("Disconnected!");
         }
 
         private static void Instance_ClientConnected(P2PConnection connection)
         {
-            Connections.Add(connection.Id, connection);
-            P2PLogger.Log($"Client {connection.Id} Connected!");
+            connection.guid = Guid.NewGuid();
+            connections.Add(connection.guid, connection);
+            P2PLogger.Log($"Client {connection.guid} Connected!");
         }
 
         private static void Instance_ClientDisconnected(P2PConnection connection)
         {
-            Connections.Remove(connection.Id);
-            P2PLogger.Log($"Client {connection.Id} Disconnected!");
+            connections.Remove(connection.guid);
+            P2PLogger.Log($"Client {connection.guid} Disconnected!");
         }
 
         private static void Instance_DataReceived(P2PConnection sender, byte[] data)
         {
-            using (P2PMessage message = new P2PMessage(data))
-            {
-                MessageReceived?.Invoke(sender, message.messageId, message);
-                if (Debug) P2PLogger.Log($"Received Message {message.messageId} from Client {sender.Id}");
-            }
+            NetDataReader reader = new NetDataReader(data);
+            int messageId = reader.GetInt();
+            messageReceived?.Invoke(sender, messageId, reader);
+            if (debug) P2PLogger.Log($"Received Message {messageId} from Client {sender.guid}");
+            reader.Clear();
         }
         /// <summary>
         /// Creates session
         /// </summary>
         /// <param name="maxConnections">Max Connections to the session</param>
         /// <param name="visibility">the privacy of that session</param>
-        public static void CreateSession(int maxConnections = 10, P2PVisibility visibility = P2PVisibility.Public) => instance.CreateSession(maxConnections, visibility);
+        public static void InitializeSession(int maxConnections = 10, P2PVisibility visibility = P2PVisibility.Public) => instance.InitializeSession(maxConnections, visibility);
         /// <summary>
         /// Connects to a session
         /// </summary>
         /// <param name="address">session address</param>
-        public static void JoinSession(string address) {
+        public static P2PConnectionError Connect(string address) {
             P2PConnection connection = null;
-            instance.JoinSession(address, out connection, out string error);
-            if(string.IsNullOrEmpty(error)) P2PLogger.Error(error);
-            Connection = connection;
+            var error = instance.Connect(address, out connection, out string connectError);
+            if(string.IsNullOrEmpty(connectError) || error != P2PConnectionError.None) P2PLogger.Error(connectError);
+            P2PNetwork.connection = connection;
+            return error;
         }
         /// <summary>
         /// Send a message to every one in the session
         /// </summary>
-        /// <param name="message">your message</param>
+        /// <param name="messageId">your message id</param>
+        /// <param name="stream">your data stream</param>
         /// <param name="sendMode">how reliable</param>
         /// <param name="shouldRelease">dispose after use</param>
-        public static void SendToAll(P2PMessage message, P2PSendMode sendMode, bool shouldRelease = true)
+        public static void SendToAll(int messageId, NetDataWriter stream, P2PSendMode sendMode, bool shouldRelease = true)
         {
-            if (Debug) P2PLogger.Log($"Sending Message {message.messageId} to all clients");
-            foreach (var connection in Connections.Values)
+            if (debug) P2PLogger.Log($"Sending Message {messageId} to all clients");
+            foreach (var connection in connections.Values)
             {
-                connection.Send(message, sendMode, shouldRelease);
+                connection.Send(messageId, stream, sendMode, shouldRelease);
             }
-            if(shouldRelease) message.Dispose();
+            if (shouldRelease) stream.Reset();
         }
         /// <summary>
         /// Send a message to a client
         /// </summary>
-        /// <param name="target">your target</param>
-        /// <param name="message">your message</param>
+        ///         /// <param name="target">your target</param>
+        /// <param name="messageId">your message id</param>
+        /// <param name="stream">your data stream</param>
         /// <param name="sendMode">how reliable</param>
         /// <param name="shouldRelease">dispose after use</param>
-        public static void Send(string target, P2PMessage message, P2PSendMode sendMode, bool shouldRelease = true) => Connections[target].Send(message, sendMode, shouldRelease);
+        public static void Send(Guid target, int messageId, NetDataWriter stream, P2PSendMode sendMode, bool shouldRelease = true) => connections[target].Send(messageId, stream, sendMode, shouldRelease);
         /// <summary>
         /// Send a message to a client
         /// </summary>
         /// <param name="target">your target</param>
-        /// <param name="message">your message</param>
+        /// <param name="messageId">your message id</param>
+        /// <param name="stream">your data stream</param>
         /// <param name="sendMode">how reliable</param>
         /// <param name="shouldRelease">dispose after use</param>
-        public static void Send(P2PConnection target, P2PMessage message, P2PSendMode sendMode, bool shouldRelease = true) => Send(target.Id, message, sendMode, shouldRelease);
+        public static void Send(P2PConnection target, int messageId, NetDataWriter stream, P2PSendMode sendMode, bool shouldRelease = true) => target.Send(messageId, stream, sendMode, shouldRelease);
 
         /// <summary>
         /// Updates the Network, Put this in an update function or while loop

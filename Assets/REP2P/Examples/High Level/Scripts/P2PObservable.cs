@@ -1,6 +1,8 @@
+using LiteNetLib.Utils;
 using REP2P;
 
 public interface P2PObservable
 {
-    public void OnP2PSerialize(P2PStream stream, bool write, P2PMessageInfo info);
+    public void OnP2PSerialize(NetDataWriter writer, P2PPacketInfo info);
+    public void OnP2PDeserialize(NetDataReader reader, P2PPacketInfo info);
 }
