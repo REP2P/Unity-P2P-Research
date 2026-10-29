@@ -9,6 +9,8 @@ public class P2PIdentity : MonoBehaviour
 {
     public int netId { get; internal set; }
     public byte nextRpc { get; internal set; }
+    public P2PConnection owner { get; internal set; } = P2PNetwork.connection;
+    public bool isMine { get; internal set; } = true;
     private static Dictionary<byte, P2PRPC> rpcs = new();
     public P2PObservable observable { get; set; }
     [SerializeField] private MonoBehaviour observableComponent;
@@ -51,5 +53,11 @@ public class P2PIdentity : MonoBehaviour
     internal void OnRpcReceived(P2PConnection sender, byte rpc, byte[] data)
     {
         rpcs[rpc].Invoke(sender, new NetDataReader(data));
+    }
+
+    private void SetOwner(P2PConnection newOwner)
+    {
+        owner = newOwner;
+        isMine = owner == P2PNetwork.connection;
     }
 }

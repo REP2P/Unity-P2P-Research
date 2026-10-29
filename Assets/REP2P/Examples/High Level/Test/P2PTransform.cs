@@ -11,6 +11,7 @@ public class P2PTransform : MonoBehaviour, P2PObservable
     public bool syncRotation = true;
     public bool syncScale = false;
 
+    public P2PIdentity identity;
     private Vector3 nextPosition;
     private Quaternion nextRotation;
     private Vector3 nextScale;
@@ -20,9 +21,14 @@ public class P2PTransform : MonoBehaviour, P2PObservable
 
     void Update()
     {
-        transform.position = Vector3.Lerp(transform.position, nextPosition, lerpSpeed * Time.deltaTime);
-        transform.rotation = Quaternion.Lerp(transform.rotation, nextRotation, lerpSpeed * Time.deltaTime);
-        transform.localScale = Vector3.Lerp(transform.localScale, nextScale, lerpSpeed * Time.deltaTime);
+        if (identity.isMine)
+        {
+            identity.SerializeIdentity();
+            return;   
+        }
+        if (syncPosition)transform.position = Vector3.Lerp(transform.position, nextPosition, lerpSpeed * Time.deltaTime);
+        if(syncRotation)transform.rotation = Quaternion.Lerp(transform.rotation, nextRotation, lerpSpeed * Time.deltaTime);
+        if(syncScale)transform.localScale = Vector3.Lerp(transform.localScale, nextScale, lerpSpeed * Time.deltaTime);
     }
 
     public void OnP2PSerialize(NetDataWriter writer, P2PPacketInfo info)
