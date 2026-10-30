@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace REP2P
+﻿namespace REP2P
 {
     /// <summary>
     /// Returns an value from a list of possible errors

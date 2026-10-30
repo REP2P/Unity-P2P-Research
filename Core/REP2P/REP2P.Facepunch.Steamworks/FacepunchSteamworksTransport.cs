@@ -137,7 +137,7 @@ namespace REP2P.Facepunch.Steamworks
             }
         }
 
-        public FacepunchSteamworksConnection GetConnection(SteamId id) => (FacepunchSteamworksConnection)P2PNetwork.connections.Values.First(x => (x as FacepunchSteamworksConnection).steamId == id);
+        public FacepunchSteamworksConnection GetConnection(SteamId id) => connections[id];
         public FacepunchSteamworksConnection CreateConnection(SteamId steamID)
         {
             P2PLogger.Log($"Creating Connection for {steamID.Value}");
