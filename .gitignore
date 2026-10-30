@@ -113,3 +113,5 @@ InitTestScene*.unity*
 /Core/REP2P/REP2P.SteamworksNET/obj
 /Core/REP2P/REP2P.SteamworksNET/bin
 /Assets/Photon
+/Core/REP2P/REP2P.Facepunch.Steamworks/obj
+/Core/REP2P/REP2P.Facepunch.Steamworks/bin

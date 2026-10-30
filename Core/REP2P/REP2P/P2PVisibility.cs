@@ -20,6 +20,10 @@ namespace REP2P
         /// <summary>
         /// Private Session
         /// </summary>
-        Private
+        Private,
+        /// <summary>
+        /// Invisible Session
+        /// </summary>
+        Invisible,
     }
 }
