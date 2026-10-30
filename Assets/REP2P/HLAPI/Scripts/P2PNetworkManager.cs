@@ -1,5 +1,6 @@
 using LiteNetLib.Utils;
 using REP2P;
+using REP2P.Facepunch.Steamworks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ public static class P2PNetworkManager
     [RuntimeInitializeOnLoadMethod]
     private static void OnStart()
     {
-        P2PNetwork.messageReceived += P2PNetwork_MessageReceived;
+        Initialize(new FacepunchSteamworksTransport());
         var playerLoop = PlayerLoop.GetCurrentPlayerLoop();
         playerLoop.updateDelegate += () =>
         {
@@ -24,19 +25,15 @@ public static class P2PNetworkManager
         PlayerLoop.SetPlayerLoop(playerLoop);
     }
 
-    private static void P2PNetwork_MessageReceived(P2PConnection sender, int messageId, NetDataReader message)
+    [P2PMessageHandler((int)P2PHLPackets.Rpc)]
+    private static void OnRpcReceived(P2PConnection sender, int messageId, NetDataReader message)
     {
-        switch ((P2PHLPackets)messageId)
+        int netId = message.GetInt();
+        byte rpc = message.GetByte();
+        byte[] data = message.GetRemainingBytes();
+        if (identities.TryGetValue(netId, out P2PIdentity identity))
         {
-            case P2PHLPackets.Rpc:
-                int netId = message.GetInt();
-                byte rpc = message.GetByte();
-                byte[] data = message.GetRemainingBytes();
-                if (identities.TryGetValue(netId, out P2PIdentity identity))
-                {
-                    identity.OnRpcReceived(sender, rpc, data);
-                }
-                break;
+            identity.OnRpcReceived(sender, rpc, data);
         }
     }
 

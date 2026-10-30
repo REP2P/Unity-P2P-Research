@@ -1,0 +1,17 @@
+{
+    "name": "REP2P.HLAPI",
+    "rootNamespace": "REP2P.HLAPI",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [
+        "REP2P.dll",
+        "REP2P.Facepunch.Steamworks.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

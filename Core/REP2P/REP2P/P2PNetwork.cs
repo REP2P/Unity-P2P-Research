@@ -18,10 +18,6 @@ namespace REP2P
         public static P2PTransport instance { get; private set; }
 
         /// <summary>
-        /// Message Received Event
-        /// </summary>
-        public static event P2PMessageReceivedDelegate messageReceived;
-        /// <summary>
         /// All the Connections in the session
         /// </summary>
         public static readonly Dictionary<Guid, P2PConnection> connections = new Dictionary<Guid, P2PConnection>();
@@ -47,7 +43,6 @@ namespace REP2P
             instance.joined += Instance_Joined;
             instance.disconnected += Instance_Disconnected;
             instance.dataReceived += Instance_DataReceived;
-            CreateMessageHandlersDictionary();
         }
 
         /// <summary>
@@ -62,50 +57,11 @@ namespace REP2P
         /// <returns>true if host</returns>
         public static bool isConnected => instance.isConnected;
 
-        private static Dictionary<int, P2PMessageHandler> messageHandlers;
+        /// <summary>
+        /// Message Handlers
+        /// </summary>
+        public readonly static Dictionary<int, P2PMessageHandler> messageHandlers = new Dictionary<int, P2PMessageHandler>();
 
-        private static void CreateMessageHandlersDictionary()
-        {
-            MethodInfo[] methods = FindMessageHandlers();
-
-            messageHandlers = new Dictionary<int, P2PMessageHandler>(methods.Length);
-            foreach (MethodInfo method in methods)
-            {
-                P2PMessageHandlerAttribute attribute = method.GetCustomAttribute<P2PMessageHandlerAttribute>();
-
-                if (!method.IsStatic)
-                {
-                    P2PLogger.Error($"Method {method.Name} from {method.DeclaringType} is not static, BLOCKED");
-                    return;
-                }
-
-                Delegate p2pMessageHandler = Delegate.CreateDelegate(typeof(P2PMessageHandler), method, false);
-                if (p2pMessageHandler != null)
-                {
-                    // It's a message handler for Server instances
-                    if (messageHandlers.ContainsKey(attribute.messageId))
-                    {
-                        MethodInfo otherMethodWithId = messageHandlers[attribute.messageId].GetMethodInfo();
-                        P2PLogger.Error($"{attribute.messageId} has a message handler already");
-                    }
-                    else
-                        messageHandlers.Add(attribute.messageId, (P2PMessageHandler)p2pMessageHandler);
-                }
-            }
-        }
-
-        private static MethodInfo[] FindMessageHandlers()
-        {
-            string thisAssemblyName = Assembly.GetExecutingAssembly().GetName().FullName;
-            return AppDomain.CurrentDomain.GetAssemblies()
-                .Where(a => a
-                    .GetReferencedAssemblies()
-                    .Any(n => n.FullName == thisAssemblyName)) // Get only assemblies that reference this assembly
-                .SelectMany(a => a.GetTypes())
-                .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)) // Include instance methods in the search so we can show the developer an error instead of silently not adding instance methods to the dictionary
-                .Where(m => m.GetCustomAttributes(typeof(P2PMessageHandlerAttribute), false).Length > 0)
-                .ToArray();
-        }
         private static void Instance_Created()
         {
             P2PLogger.Log("Created Session!");
@@ -138,7 +94,7 @@ namespace REP2P
         {
             NetDataReader reader = new NetDataReader(data);
             int messageId = reader.GetInt();
-            messageReceived?.Invoke(sender, messageId, reader);
+            messageHandlers[messageId]?.Invoke(sender, messageId, reader);
             if (debug) P2PLogger.Log($"Received Message {messageId} from Client {sender.guid}");
             reader.Clear();
         }

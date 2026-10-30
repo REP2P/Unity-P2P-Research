@@ -4337,5 +4337,10 @@
             Private Session
             </summary>
         </member>
+        <member name="F:REP2P.P2PVisibility.Invisible">
+            <summary>
+            Invisible Session
+            </summary>
+        </member>
     </members>
 </doc>
