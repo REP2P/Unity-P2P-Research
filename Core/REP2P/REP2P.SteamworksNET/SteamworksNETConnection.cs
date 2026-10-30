@@ -6,15 +6,15 @@ using System.Text;
 
 namespace REP2P.SteamworksNET
 {
-    public class SteamConnection : P2PConnection
+    public class SteamworksNETConnection : P2PConnection
     {
-        public override bool isHost => SteamMatchmaking.GetLobbyOwner(SteamTransport.CurrentLobby) == steamId;
+        public override bool isHost => SteamMatchmaking.GetLobbyOwner(SteamworksNETTransport.CurrentLobby) == steamId;
 
         public override bool isConnected => steamId.IsValid();
 
         public CSteamID steamId { get; protected set; }
 
-        internal SteamConnection(CSteamID id) {
+        internal SteamworksNETConnection(CSteamID id) {
             steamId = id; 
             P2PLogger.Log($"Created Connection for {steamId.m_SteamID}");
         }
@@ -34,7 +34,7 @@ namespace REP2P.SteamworksNET
                     sendFlags = Constants.k_nSteamNetworkingSend_Reliable;
                     break;
             }
-            var result = SteamNetworkingMessages.SendMessageToUser(ref id, pData, (uint)data.Length, sendFlags | Constants.k_nSteamNetworkingSend_AutoRestartBrokenSession, SteamTransport.CHANNEL);
+            var result = SteamNetworkingMessages.SendMessageToUser(ref id, pData, (uint)data.Length, sendFlags | Constants.k_nSteamNetworkingSend_AutoRestartBrokenSession, SteamworksNETTransport.CHANNEL);
             if (result != EResult.k_EResultOK)
             {
                 P2PLogger.Error($"Error sending message to user {steamId}: {result}");

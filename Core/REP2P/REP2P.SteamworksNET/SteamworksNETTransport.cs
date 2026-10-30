@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 namespace REP2P.SteamworksNET
 {
     // The source code of https://github.com/RugbugRedfern/Mycelium-Networking-For-Content-Warning/ is used partially under the Attribution-NonCommercial-ShareAlike 4.0 International license
-    public class SteamTransport : P2PTransport
+    public class SteamworksNETTransport : P2PTransport
     {
         public const int CHANNEL = 420;
         public bool isHost => isConnected && SteamMatchmaking.GetLobbyOwner(CurrentLobby) == SteamUser.GetSteamID();
@@ -30,7 +30,7 @@ namespace REP2P.SteamworksNET
         protected Callback<LobbyChatUpdate_t> lobbyChatUpdate;
         protected Callback<LobbyDataUpdate_t> lobbyDataUpdate;
 
-        public SteamTransport()
+        public SteamworksNETTransport()
         {
             lobbyEntered = Callback<LobbyEnter_t>.Create(OnLobbyEnter);
             lobbyCreated = Callback<LobbyCreated_t>.Create(OnLobbyCreated);
@@ -89,7 +89,7 @@ namespace REP2P.SteamworksNET
             try
             {
                 var result = SteamMatchmaking.JoinLobby((CSteamID)ulong.Parse(address));
-                connection = new SteamConnection(SteamUser.GetSteamID());    
+                connection = new SteamworksNETConnection(SteamUser.GetSteamID());    
                 connectError = "";
                 return P2PConnectionError.None;
             }
@@ -176,11 +176,11 @@ namespace REP2P.SteamworksNET
             }
         }
 
-        public SteamConnection GetConnection(CSteamID id) => (SteamConnection)P2PNetwork.connections.Values.First(x => (x as SteamConnection).steamId == id);
-        public SteamConnection CreateConnection(CSteamID steamID)
+        public SteamworksNETConnection GetConnection(CSteamID id) => (SteamworksNETConnection)P2PNetwork.connections.Values.First(x => (x as SteamworksNETConnection).steamId == id);
+        public SteamworksNETConnection CreateConnection(CSteamID steamID)
         {
             P2PLogger.Log($"Creating Connection for {steamID.m_SteamID}");
-            return new SteamConnection(steamID);
+            return new SteamworksNETConnection(steamID);
         }
         public void Disconnect()
         {

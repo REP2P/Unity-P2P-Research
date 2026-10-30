@@ -1,6 +1,6 @@
 ﻿namespace REP2P.SteamworksNET
 {
-    public enum SteamLobbyPrivacy
+    public enum SteamworkNETLobby
     {
         Public,
         Private,
