@@ -23,9 +23,9 @@ public static class P2PNetworkManager
             P2PNetwork.Poll();
         };
         PlayerLoop.SetPlayerLoop(playerLoop);
+        P2PNetwork.messageHandlers.Add((int)P2PHLPackets.Rpc, OnRpcReceived);
     }
 
-    [P2PMessageHandler((int)P2PHLPackets.Rpc)]
     private static void OnRpcReceived(P2PConnection sender, int messageId, NetDataReader message)
     {
         int netId = message.GetInt();

@@ -4076,26 +4076,6 @@
             <param name="messageId"></param>
             <param name="stream"></param>
         </member>
-        <member name="T:REP2P.P2PMessageHandlerAttribute">
-            <summary>
-            High Level Message Handler, Attach this to a static method which follows <see cref="T:REP2P.P2PMessageHandler"/> principle
-            </summary>
-        </member>
-        <member name="F:REP2P.P2PMessageHandlerAttribute.messageId">
-            <summary>
-            The ID of the Message
-            </summary>
-        </member>
-        <member name="M:REP2P.P2PMessageHandlerAttribute.#ctor(System.Int32)">
-            <summary>
-            High Level Message Handler, Attach this to a static method which follows <see cref="T:REP2P.P2PMessageHandler"/> principle
-            </summary>
-        </member>
-        <member name="T:REP2P.P2PMessageReceivedDelegate">
-            <summary>
-            event args when you get a message
-            </summary>
-        </member>
         <member name="T:REP2P.P2PNetwork">
             <summary>
             Class that handles the Connections/Data transfer between peers in a p2p mesh
@@ -4104,11 +4084,6 @@
         <member name="P:REP2P.P2PNetwork.instance">
             <summary>
             The Network Transport
-            </summary>
-        </member>
-        <member name="E:REP2P.P2PNetwork.messageReceived">
-            <summary>
-            Message Received Event
             </summary>
         </member>
         <member name="F:REP2P.P2PNetwork.connections">
@@ -4143,6 +4118,11 @@
             Are you host?
             </summary>
             <returns>true if host</returns>
+        </member>
+        <member name="F:REP2P.P2PNetwork.messageHandlers">
+            <summary>
+            Message Handlers
+            </summary>
         </member>
         <member name="M:REP2P.P2PNetwork.InitializeSession(System.Int32,REP2P.P2PVisibility)">
             <summary>
