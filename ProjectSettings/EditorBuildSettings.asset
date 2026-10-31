@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Networking/BroNet.unity
+    guid: 4890bbafb847b054b8b08cbe98d3bae1
   m_configObjects: {}

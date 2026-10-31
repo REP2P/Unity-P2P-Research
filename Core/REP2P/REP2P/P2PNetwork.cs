@@ -32,7 +32,6 @@ namespace REP2P
         /// <param name="transport">Your selected transport</param>
         public static void Initialize(P2PTransport transport)
         {
-            instance = null;
             instance = transport;
             instance.clientConnected += Instance_ClientConnected;
             instance.clientDisconnected += Instance_ClientDisconnected;
@@ -106,10 +105,8 @@ namespace REP2P
         /// </summary>
         /// <param name="address">session address</param>
         public static P2PConnectionError Connect(string address) {
-            P2PConnection connection = null;
-            var error = instance.Connect(address, out connection, out string connectError);
-            if(string.IsNullOrEmpty(connectError) || error != P2PConnectionError.None) P2PLogger.Error(connectError);
-            P2PNetwork.connection = connection;
+            var error = instance.Connect(address);
+            if(error != P2PConnectionError.None) P2PLogger.Error($"Connection error {error}");
             return error;
         }
         /// <summary>

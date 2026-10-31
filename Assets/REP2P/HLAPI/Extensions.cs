@@ -14,6 +14,15 @@ public static class BinaryExtensions
     {
         return new Vector3(reader.GetFloat(), reader.GetFloat(), reader.GetFloat());
     }
+    public static void Put(this NetDataWriter writer, Vector2 value)
+    {
+        writer.Put(value.x);
+        writer.Put(value.y);
+    }
+    public static Vector2 GetVector2(this NetDataReader reader)
+    {
+        return new Vector2(reader.GetFloat(), reader.GetFloat());
+    }
     public static void Put(this NetDataWriter writer, Quaternion value)
     {
         writer.Put(value.x);

@@ -58,9 +58,7 @@ namespace REP2P
         /// Joins a session and returns an error if occured
         /// </summary>
         /// <param name="address">end address</param>
-        /// <param name="connection">your connection</param>
-        /// <param name="connectError">your connection error</param>
-        public P2PConnectionError Connect(string address, out P2PConnection connection, out string connectError);
+        public P2PConnectionError Connect(string address);
 
         /// <summary>
         /// Updates the network transport state

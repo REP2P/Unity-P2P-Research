@@ -6,7 +6,8 @@ namespace REP2P.Facepunch.Steamworks
     {
         public override bool isHost => FacepunchSteamworksTransport.CurrentLobby.IsOwnedBy(steamId);
 
-        public override bool isConnected => steamId.IsValid;
+        internal bool _isConnected;
+        public override bool isConnected => _isConnected;
 
         public SteamId steamId { get; protected set; }
 

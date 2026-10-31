@@ -1,5 +1,7 @@
 ﻿using Steamworks;
 using Steamworks.Data;
+using System;
+using System.Collections.Generic;
 
 namespace REP2P.Facepunch.Steamworks
 {
@@ -8,10 +10,11 @@ namespace REP2P.Facepunch.Steamworks
         public const int CHANNEL = 420;
         public bool isHost => isConnected && CurrentLobby.IsOwnedBy(SteamClient.SteamId);
         public static Lobby CurrentLobby;
-        public bool isConnected => CurrentLobby.Id.IsValid;
+        private bool _isConnected;
+        public bool isConnected => _isConnected;
 
-        public P2PConnection host => GetConnection(CurrentLobby.Owner.Id);
-        public readonly Dictionary<SteamId, FacepunchSteamworksConnection> connections = new();
+        public P2PConnection host => connections[CurrentLobby.Owner.Id];
+        public readonly Dictionary<SteamId, FacepunchSteamworksConnection> connections = new Dictionary<SteamId, FacepunchSteamworksConnection>();
         public event Action created;
         public event Action<P2PConnection> joined;
         public event Action disconnected;
@@ -19,12 +22,17 @@ namespace REP2P.Facepunch.Steamworks
         public event Action<P2PConnection> clientConnected;
         public event Action<P2PConnection> clientDisconnected;
         public event P2PDataReceivedDelegate dataReceived;
-
-        public FacepunchSteamworksTransport()
+        private bool runCallbacks;
+        public FacepunchSteamworksTransport(bool runCallbacks = false)
         {
+            this.runCallbacks = runCallbacks;
+            _isConnected = false;
             SteamMatchmaking.OnLobbyEntered += OnLobbyEnter;
             SteamMatchmaking.OnLobbyCreated += OnLobbyCreated;
             SteamMatchmaking.OnLobbyMemberJoined += OnLobbyMemberJoined;
+            SteamMatchmaking.OnLobbyMemberKicked += (lobby, friend, _) => OnLobbyMemberDisconnected(lobby, friend);
+            SteamMatchmaking.OnLobbyMemberBanned += (lobby, friend, _) => OnLobbyMemberDisconnected(lobby, friend);
+
             SteamMatchmaking.OnLobbyMemberDisconnected += OnLobbyMemberDisconnected;
             SteamNetworking.OnP2PSessionRequest += (id) => SteamNetworking.AcceptP2PSessionWithUser(id);
         }
@@ -32,17 +40,22 @@ namespace REP2P.Facepunch.Steamworks
         private void OnLobbyMemberJoined(Lobby lobby, Friend friend)
         {
             var steamID = friend.Id;
-            clientConnected?.Invoke(CreateConnection(steamID));
+            if (friend.Id != SteamClient.SteamId) clientConnected?.Invoke(CreateConnection(steamID));
         }
 
         private void OnLobbyMemberDisconnected(Lobby lobby, Friend friend)
         {
             var steamID = friend.Id;
-            clientDisconnected?.Invoke(GetConnection(steamID));
+            if (friend.Id != SteamClient.SteamId) {
+                connections[steamID]._isConnected = false;
+                clientDisconnected?.Invoke(connections[steamID]);
+                connections.Remove(steamID);
+            }
         }
 
         private void OnLobbyEnter(Lobby lobby)
         {
+            _isConnected = true;
             CurrentLobby = lobby;
             int length = lobby.MemberCount;
             foreach(var friend in lobby.Members)
@@ -68,20 +81,17 @@ namespace REP2P.Facepunch.Steamworks
             }
         }
 
-        public P2PConnectionError Connect(string address, out P2PConnection connection, out string connectError)
+        public P2PConnectionError Connect(string address)
         {
             P2PLogger.Log("Connecting!");
             try
             {
                 var result = SteamMatchmaking.JoinLobbyAsync(ulong.Parse(address));
-                connection = CreateConnection(SteamClient.SteamId);
-                connectError = "";
                 return P2PConnectionError.None;
             }
             catch (Exception ex)
             {
-                connection = null;
-                connectError = ex.Message;
+                P2PLogger.Exception(ex);
                 return P2PConnectionError.Unknown;
             }
         }
@@ -112,7 +122,7 @@ namespace REP2P.Facepunch.Steamworks
 
         public void Poll()
         {
-            SteamClient.RunCallbacks();
+            if(runCallbacks)SteamClient.RunCallbacks();
             ReceiveMessages();
         }
         public void ReceiveMessages()
@@ -126,7 +136,7 @@ namespace REP2P.Facepunch.Steamworks
                     var data = packet.Value.Data;
                     try
                     {
-                        dataReceived(GetConnection(sender), data);
+                        dataReceived(connections[sender], data);
                     }
                     catch (Exception ex)
                     {
@@ -137,16 +147,18 @@ namespace REP2P.Facepunch.Steamworks
             }
         }
 
-        public FacepunchSteamworksConnection GetConnection(SteamId id) => connections[id];
         public FacepunchSteamworksConnection CreateConnection(SteamId steamID)
         {
             P2PLogger.Log($"Creating Connection for {steamID.Value}");
-            return new FacepunchSteamworksConnection(steamID);
+            connections.Add(steamID, new FacepunchSteamworksConnection(steamID) { _isConnected = true });
+            return connections[steamID];
         }
         public void Disconnect()
         {
             P2PLogger.Log("Disconnecting!");
+            connections.Clear();
             CurrentLobby.Leave();
+            _isConnected = false;
             disconnected?.Invoke();
         }
 

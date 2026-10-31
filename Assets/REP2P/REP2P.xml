@@ -4266,13 +4266,11 @@
             <param name="maxConnections">max connections</param>
             <param name="visibility">how visible</param>
         </member>
-        <member name="M:REP2P.P2PTransport.Connect(System.String,REP2P.P2PConnection@,System.String@)">
+        <member name="M:REP2P.P2PTransport.Connect(System.String)">
             <summary>
             Joins a session and returns an error if occured
             </summary>
             <param name="address">end address</param>
-            <param name="connection">your connection</param>
-            <param name="connectError">your connection error</param>
         </member>
         <member name="M:REP2P.P2PTransport.Poll">
             <summary>

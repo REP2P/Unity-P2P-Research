@@ -8,7 +8,8 @@ namespace REP2P.SteamworksNET
     {
         public override bool isHost => SteamMatchmaking.GetLobbyOwner(SteamworksNETTransport.CurrentLobby) == steamId;
 
-        public override bool isConnected => steamId.IsValid();
+        internal bool _isConnected;
+        public override bool isConnected => _isConnected;
 
         public CSteamID steamId { get; protected set; }
 
