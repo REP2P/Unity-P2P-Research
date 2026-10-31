@@ -21,13 +21,20 @@ namespace Networking
             }
             SteamClient.Init(480);
             P2PLogger.Initialize(Debug.Log, Debug.Log, Debug.LogWarning, Debug.LogError);
+            SteamMatchmaking.OnLobbyEntered += SteamMatchmaking_OnLobbyEntered;
             P2PNetwork.Initialize(new FacepunchSteamworksTransport());
             P2PNetwork.messageHandlers.Add(69, HandleMovePacket);
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
 
+        private void SteamMatchmaking_OnLobbyEntered(Steamworks.Data.Lobby obj)
+        {
+            lobbyId = obj.Id.Value.ToString();
+        }
+
         string address = "";
+        string lobbyId;
 
         private void OnGUI()
         {
@@ -35,6 +42,7 @@ namespace Networking
             address = GUILayout.TextField(address);
             if (GUILayout.Button("Connect")) P2PNetwork.Connect(address);
 
+            GUILayout.TextField(lobbyId);
             GUILayout.Label("NetId" + netInstanceId);
             P2PNetwork.debug = GUILayout.Toggle(P2PNetwork.debug, "Debug");
 
