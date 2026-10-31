@@ -156,7 +156,7 @@ namespace REP2P
         /// Retrieves current session data
         /// </summary>
         /// <param name="key">the key of the data</param>
-        public static void GetSessionData(string key) => instance.GetSessionData(key);
+        public static string GetSessionData(string key) => instance.GetSessionData(key);
 
         /// <summary>
         /// Updates the Network, Put this in an update function or while loop

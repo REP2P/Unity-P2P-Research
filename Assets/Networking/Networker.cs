@@ -35,7 +35,10 @@ namespace Networking
             address = GUILayout.TextField(address);
             if (GUILayout.Button("Connect")) P2PNetwork.Connect(address);
 
+            GUILayout.Label("NetId" + netInstanceId);
             P2PNetwork.debug = GUILayout.Toggle(P2PNetwork.debug, "Debug");
+
+            if (GUILayout.Button("Disconnect")) P2PNetwork.Disconnect();
         }
 
         private void OnApplicationQuit() {
@@ -45,9 +48,18 @@ namespace Networking
         public void HostGame() {
             P2PNetwork.InitializeSession();
         }
- 
+        private string netInstanceId;
         NetDataWriter writer = new();
         private void FixedUpdate() {
+            if (P2PNetwork.isHost)
+            {
+                netInstanceId = GetInstanceID().ToString();
+                P2PNetwork.SetSessionData("net", netInstanceId);
+            }
+            else
+            {
+                netInstanceId = P2PNetwork.GetSessionData("net");
+            }
             if (P2PNetwork.isConnected) {
                 P2PNetwork.Poll();
                 writer.Reset();
