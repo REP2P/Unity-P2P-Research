@@ -12,16 +12,16 @@ namespace REP2P
         /// <summary>
         /// The Network Transport
         /// </summary>
-        public static P2PTransport instance { get; private set; }
+        public static P2PService instance { get; private set; }
 
         /// <summary>
-        /// All the Connections in the session
+        /// All the Connections in the room
         /// </summary>
         public static readonly Dictionary<Guid, P2PConnection> connections = new Dictionary<Guid, P2PConnection>();
         /// <summary>
         /// Your local connection
         /// </summary>
-        public static P2PConnection connection { get; private set; } = null;
+        public static P2PConnection localConnection { get; private set; } = null;
         /// <summary>
         /// Allow Debug Logs
         /// </summary>
@@ -30,13 +30,13 @@ namespace REP2P
         /// Initialize the P2P Network
         /// </summary>
         /// <param name="transport">Your selected transport</param>
-        public static void Initialize(P2PTransport transport)
+        public static void Initialize(P2PService transport)
         {
             instance = transport;
             instance.clientConnected += Instance_ClientConnected;
             instance.clientDisconnected += Instance_ClientDisconnected;
-            instance.created += Instance_Created;
-            instance.joined += Instance_Joined;
+            instance.createdRoom += Instance_Created;
+            instance.joinedRoom += Instance_Joined;
             instance.disconnected += Instance_Disconnected;
             instance.dataReceived += Instance_DataReceived;
         }
@@ -69,7 +69,7 @@ namespace REP2P
         }
         private static void Instance_Disconnected()
         {
-            connection = null;
+            localConnection = null;
             P2PLogger.Log("Disconnected!");
         }
 
@@ -95,22 +95,22 @@ namespace REP2P
             reader.Clear();
         }
         /// <summary>
-        /// Creates session
+        /// Creates Room with the given max connections and visibility
         /// </summary>
-        /// <param name="maxConnections">Max Connections to the session</param>
-        /// <param name="visibility">the privacy of that session</param>
-        public static void InitializeSession(int maxConnections = 10, P2PVisibility visibility = P2PVisibility.Public) => instance.InitializeSession(maxConnections, visibility);
+        /// <param name="maxConnections">Max Connections to the room</param>
+        /// <param name="visibility">the privacy of that room</param>
+        public static void CreateRoom(int maxConnections = 10, P2PVisibility visibility = P2PVisibility.Public) => instance.CreateRoom(maxConnections, visibility);
         /// <summary>
-        /// Connects to a session
+        /// Connects to a room
         /// </summary>
-        /// <param name="address">session address</param>
-        public static P2PConnectionError Connect(string address) {
-            var error = instance.Connect(address);
+        /// <param name="address">room address</param>
+        public static P2PConnectionError JoinRoom(string address) {
+            var error = instance.JoinRoom(address);
             if(error != P2PConnectionError.None) P2PLogger.Error($"Connection error {error}");
             return error;
         }
         /// <summary>
-        /// Send a message to every one in the session
+        /// Send a message to every one in the room
         /// </summary>
         /// <param name="messageId">your message id</param>
         /// <param name="stream">your data stream</param>
@@ -144,19 +144,18 @@ namespace REP2P
         /// <param name="shouldRelease">dispose after use</param>
         public static void Send(P2PConnection target, int messageId, NetDataWriter stream, P2PSendMode sendMode, bool shouldRelease = true) => target.Send(messageId, stream, sendMode, shouldRelease);
 
-
         /// <summary>
-        /// Sets the data for the current session
+        /// Sets the data for the current room
         /// </summary>
         /// <param name="key">the key of the data</param>
         /// <param name="value">the value of the data</param>
-        public static void SetSessionData(string key, string value) => instance.SetSessionData(key, value);
+        public static void SetRoomData(string key, string value) => instance.SetRoomData(key, value);
 
         /// <summary>
-        /// Retrieves current session data
+        /// Retrieves current room data
         /// </summary>
         /// <param name="key">the key of the data</param>
-        public static string GetSessionData(string key) => instance.GetSessionData(key);
+        public static string GetRoomData(string key) => instance.GetRoomData(key);
 
         /// <summary>
         /// Updates the Network, Put this in an update function or while loop
@@ -164,7 +163,7 @@ namespace REP2P
         public static void Poll() => instance.Poll();
 
         /// <summary>
-        /// Disconnects from current session
+        /// Disconnects from current room
         /// </summary>
         public static void Disconnect() => instance.Disconnect();
     }

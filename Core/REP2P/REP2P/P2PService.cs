@@ -5,16 +5,16 @@ namespace REP2P
     /// <summary>
     /// P2P Transport template
     /// </summary>
-    public interface P2PTransport
+    public interface P2PService
     {
         /// <summary>
-        /// invokes when a session starts
+        /// invokes when a room starts
         /// </summary>
-        public event Action created;
+        public event Action createdRoom;
         /// <summary>
         /// invokes when connected
         /// </summary>
-        public event Action<P2PConnection> joined;
+        public event Action<P2PConnection> joinedRoom;
         /// <summary>
         /// invokes when disconnected
         /// </summary>
@@ -53,32 +53,32 @@ namespace REP2P
         /// </summary>
         /// <param name="maxConnections">max connections</param>
         /// <param name="visibility">how visible</param>
-        public void InitializeSession(int maxConnections, P2PVisibility visibility = P2PVisibility.Public);
+        public void CreateRoom(int maxConnections, P2PVisibility visibility = P2PVisibility.Public);
         /// <summary>
-        /// Joins a session and returns an error if occured
+        /// Joins a room and returns an error if occured
         /// </summary>
         /// <param name="address">end address</param>
-        public P2PConnectionError Connect(string address);
+        public P2PConnectionError JoinRoom(string address);
 
         /// <summary>
         /// Updates the network transport state
         /// </summary>
         public void Poll();
         /// <summary>
-        /// Disconnects you from the session
+        /// Disconnects you from the room
         /// </summary>
         public void Disconnect();
 
         /// <summary>
-        /// Sets a data for the session
+        /// Sets a data for the room
         /// </summary>
         /// <param name="key">the key of the data</param>
         /// <param name="value">the value of the data</param>
-        public void SetSessionData(string key, string value);
+        public void SetRoomData(string key, string value);
         /// <summary>
-        /// Returns the data from the session
+        /// Returns the data from the room
         /// </summary>
         /// <param name="key">the key of the data</param>
-        public string GetSessionData(string key);
+        public string GetRoomData(string key);
     }
 }

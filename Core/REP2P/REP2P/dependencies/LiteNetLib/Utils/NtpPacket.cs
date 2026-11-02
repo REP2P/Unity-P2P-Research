@@ -73,7 +73,7 @@ namespace LiteNetLib.Utils
         /// Gets or sets SNTP packet mode, i.e. whether this is client or server packet.
         /// </summary>
         /// <value>
-        /// SNTP packet mode. Default is <see cref="NtpMode.Client" /> in newly created packets.
+        /// SNTP packet mode. Default is <see cref="NtpMode.Client" /> in newly createdRoom packets.
         /// Server reply should have this property set to <see cref="NtpMode.Server" />.
         /// </value>
         public NtpMode Mode

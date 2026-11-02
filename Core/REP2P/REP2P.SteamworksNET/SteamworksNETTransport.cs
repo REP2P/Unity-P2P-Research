@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 namespace REP2P.SteamworksNET
 {
     // The source code of https://github.com/RugbugRedfern/Mycelium-Networking-For-Content-Warning/ is used partially under the Attribution-NonCommercial-ShareAlike 4.0 International license
-    public class SteamworksNETTransport : P2PTransport
+    public class SteamworksNETTransport : P2PService
     {
         public const int CHANNEL = 420;
         public bool isHost => isConnected && SteamMatchmaking.GetLobbyOwner(CurrentLobby) == SteamUser.GetSteamID();
@@ -16,8 +16,8 @@ namespace REP2P.SteamworksNET
 
         public P2PConnection host => connections[SteamMatchmaking.GetLobbyOwner(CurrentLobby)];
         public readonly Dictionary<CSteamID, SteamworksNETConnection> connections = new Dictionary<CSteamID, SteamworksNETConnection>();
-        public event Action created;
-        public event Action<P2PConnection> joined;
+        public event Action createdRoom;
+        public event Action<P2PConnection> joinedRoom;
         public event Action disconnected;
         public event Action connectionFailed;
         public event Action<P2PConnection> clientConnected;
@@ -73,7 +73,7 @@ namespace REP2P.SteamworksNET
                     clientConnected?.Invoke(CreateConnection(memberId));
                 }
             }
-            joined?.Invoke(CreateConnection(SteamUser.GetSteamID()));
+            joinedRoom?.Invoke(CreateConnection(SteamUser.GetSteamID()));
         }
 
         private void OnLobbyCreated(LobbyCreated_t param)
@@ -81,7 +81,7 @@ namespace REP2P.SteamworksNET
             if (param.m_eResult == EResult.k_EResultOK)
             {
                 CurrentLobby = (CSteamID)param.m_ulSteamIDLobby;
-                created?.Invoke();
+                createdRoom?.Invoke();
             }
             else
             {
@@ -89,7 +89,7 @@ namespace REP2P.SteamworksNET
             }  
         }
 
-        public P2PConnectionError Connect(string address)
+        public P2PConnectionError JoinRoom(string address)
         {
             P2PLogger.Log("Connecting!");
             try
@@ -104,7 +104,7 @@ namespace REP2P.SteamworksNET
             }
         }
 
-        public void InitializeSession(int maxConnections, P2PVisibility visibility = P2PVisibility.Public)
+        public void CreateRoom(int maxConnections, P2PVisibility visibility = P2PVisibility.Public)
         {
             P2PLogger.Log("Starting Game!");
             ELobbyType lobbyType = ELobbyType.k_ELobbyTypePublic;
@@ -198,12 +198,12 @@ namespace REP2P.SteamworksNET
             disconnected?.Invoke();
         }
 
-        public void SetSessionData(string key, string value)
+        public void SetRoomData(string key, string value)
         {
             SteamMatchmaking.SetLobbyData(CurrentLobby, key, value);
         }
 
-        public string GetSessionData(string key)
+        public string GetRoomData(string key)
         {
             return SteamMatchmaking.GetLobbyData(CurrentLobby, key);
         }

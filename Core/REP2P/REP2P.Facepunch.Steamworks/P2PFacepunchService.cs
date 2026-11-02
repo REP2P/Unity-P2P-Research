@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace REP2P.Facepunch.Steamworks
 {
-    public class FacepunchSteamworksTransport : P2PTransport
+    public class P2PFacepunchService : P2PService
     {
         public const int CHANNEL = 420;
         public bool isHost => isConnected && CurrentLobby.IsOwnedBy(SteamClient.SteamId);
@@ -13,17 +13,17 @@ namespace REP2P.Facepunch.Steamworks
         private bool _isConnected;
         public bool isConnected => _isConnected;
 
-        public P2PConnection host => connections[CurrentLobby.Owner.Id];
-        public readonly Dictionary<SteamId, FacepunchSteamworksConnection> connections = new Dictionary<SteamId, FacepunchSteamworksConnection>();
-        public event Action created;
-        public event Action<P2PConnection> joined;
+        public P2PConnection host => connections[CurrentLobby.Owner];
+        public readonly Dictionary<Friend, P2PFacepunchConnection> connections = new Dictionary<Friend, P2PFacepunchConnection>();
+        public event Action createdRoom;
+        public event Action<P2PConnection> joinedRoom;
         public event Action disconnected;
         public event Action connectionFailed;
         public event Action<P2PConnection> clientConnected;
         public event Action<P2PConnection> clientDisconnected;
         public event P2PDataReceivedDelegate dataReceived;
         private bool runCallbacks;
-        public FacepunchSteamworksTransport(bool runCallbacks = false)
+        public P2PFacepunchService(bool runCallbacks = false)
         {
             this.runCallbacks = runCallbacks;
             _isConnected = false;
@@ -40,16 +40,16 @@ namespace REP2P.Facepunch.Steamworks
         private void OnLobbyMemberJoined(Lobby lobby, Friend friend)
         {
             var steamID = friend.Id;
-            if (friend.Id != SteamClient.SteamId) clientConnected?.Invoke(CreateConnection(steamID));
+            if (friend.Id != SteamClient.SteamId) clientConnected?.Invoke(CreateConnection(friend));
         }
 
         private void OnLobbyMemberDisconnected(Lobby lobby, Friend friend)
         {
             var steamID = friend.Id;
             if (friend.Id != SteamClient.SteamId) {
-                connections[steamID]._isConnected = false;
-                clientDisconnected?.Invoke(connections[steamID]);
-                connections.Remove(steamID);
+                connections[friend]._isConnected = false;
+                clientDisconnected?.Invoke(connections[friend]);
+                connections.Remove(friend);
             }
         }
 
@@ -62,10 +62,10 @@ namespace REP2P.Facepunch.Steamworks
             {
                 if (friend.Id != SteamClient.SteamId)
                 {
-                    clientConnected?.Invoke(CreateConnection(friend.Id));
+                    clientConnected?.Invoke(CreateConnection(friend));
                 }
             }
-            joined?.Invoke(CreateConnection(SteamClient.SteamId));
+            joinedRoom?.Invoke(CreateConnection(new Friend(SteamClient.SteamId)));
         }
 
         private void OnLobbyCreated(Result result, Lobby lobby)
@@ -73,7 +73,7 @@ namespace REP2P.Facepunch.Steamworks
             if (result == Result.OK)
             {
                 CurrentLobby = lobby;
-                created?.Invoke();
+                createdRoom?.Invoke();
             }
             else
             {
@@ -81,7 +81,7 @@ namespace REP2P.Facepunch.Steamworks
             }
         }
 
-        public P2PConnectionError Connect(string address)
+        public P2PConnectionError JoinRoom(string address)
         {
             P2PLogger.Log("Connecting!");
             try
@@ -96,7 +96,7 @@ namespace REP2P.Facepunch.Steamworks
             }
         }
 
-        public async void InitializeSession(int maxConnections, P2PVisibility visibility = P2PVisibility.Public)
+        public async void CreateRoom(int maxConnections, P2PVisibility visibility = P2PVisibility.Public)
         {
             P2PLogger.Log("Starting Game!");
             var lobbyTask = SteamMatchmaking.CreateLobbyAsync(maxConnections);
@@ -136,7 +136,7 @@ namespace REP2P.Facepunch.Steamworks
                     var data = packet.Value.Data;
                     try
                     {
-                        dataReceived(connections[sender], data);
+                        dataReceived(connections[new Friend(sender)], data);
                     }
                     catch (Exception ex)
                     {
@@ -147,11 +147,11 @@ namespace REP2P.Facepunch.Steamworks
             }
         }
 
-        public FacepunchSteamworksConnection CreateConnection(SteamId steamID)
+        public P2PFacepunchConnection CreateConnection(Friend friend)
         {
-            P2PLogger.Log($"Creating Connection for {steamID.Value}");
-            connections.Add(steamID, new FacepunchSteamworksConnection(steamID) { _isConnected = true });
-            return connections[steamID];
+            P2PLogger.Log($"Creating Connection for {friend.Id.Value}");
+            connections.Add(friend, new P2PFacepunchConnection(friend) { _isConnected = true });
+            return connections[friend];
         }
         public void Disconnect()
         {
@@ -162,12 +162,12 @@ namespace REP2P.Facepunch.Steamworks
             disconnected?.Invoke();
         }
 
-        public void SetSessionData(string key, string value)
+        public void SetRoomData(string key, string value)
         {
             CurrentLobby.SetData(key, value);
         }
 
-        public string GetSessionData(string key)
+        public string GetRoomData(string key)
         {
             return CurrentLobby.GetData(key);
         }

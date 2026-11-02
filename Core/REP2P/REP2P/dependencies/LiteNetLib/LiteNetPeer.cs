@@ -407,7 +407,7 @@ namespace LiteNetLib
             }
         }
 
-        //"Connect to" constructor
+        //"JoinRoom to" constructor
         internal LiteNetPeer(LiteNetManager netManager, IPEndPoint remoteEndPoint, int id, byte connectNum, ReadOnlySpan<byte> connectData)
             : this(netManager, remoteEndPoint, id)
         {

@@ -42,5 +42,8 @@ namespace REP2P
         /// <param name="data">message into a byte array</param>
         /// <param name="sendMode">is the packet reliable</param>
         protected abstract void Send(byte[] data, P2PSendMode sendMode);
+
+        public abstract void SetData(string key, string value);
+        public abstract string GetData(string key);
     }
 }

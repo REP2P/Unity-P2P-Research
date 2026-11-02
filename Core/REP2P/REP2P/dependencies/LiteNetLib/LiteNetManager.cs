@@ -1343,7 +1343,7 @@ namespace LiteNetLib
         }
 
         /// <summary>
-        /// Connect to remote host
+        /// JoinRoom to remote host
         /// </summary>
         /// <param name="address">Server IP or hostname</param>
         /// <param name="port">Server Port</param>
@@ -1354,7 +1354,7 @@ namespace LiteNetLib
             Connect(address, port, NetDataWriter.FromString(key));
 
         /// <summary>
-        /// Connect to remote host
+        /// JoinRoom to remote host
         /// </summary>
         /// <param name="address">Server IP or hostname</param>
         /// <param name="port">Server Port</param>
@@ -1377,7 +1377,7 @@ namespace LiteNetLib
         }
 
         /// <summary>
-        /// Connect to remote host
+        /// JoinRoom to remote host
         /// </summary>
         /// <param name="target">Server end point (ip and port)</param>
         /// <param name="key">Connection key</param>
@@ -1387,7 +1387,7 @@ namespace LiteNetLib
             Connect(target, NetDataWriter.FromString(key));
 
         /// <summary>
-        /// Connect to remote host
+        /// JoinRoom to remote host
         /// </summary>
         /// <param name="target">Server end point (ip and port)</param>
         /// <param name="connectionData">Additional data for remote peer</param>
@@ -1427,7 +1427,7 @@ namespace LiteNetLib
         }
 
         /// <summary>
-        /// Connect to remote host
+        /// JoinRoom to remote host
         /// </summary>
         /// <param name="target">Server end point (ip and port)</param>
         /// <param name="connectionData">Additional data for remote peer</param>
