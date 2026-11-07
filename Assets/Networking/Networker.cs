@@ -22,10 +22,29 @@ namespace Networking
             SteamClient.Init(480);
             P2PLogger.Initialize(Debug.Log, Debug.Log, Debug.LogWarning, Debug.LogError);
             SteamMatchmaking.OnLobbyEntered += SteamMatchmaking_OnLobbyEntered;
-            P2PNetwork.Initialize(new FacepunchSteamworksTransport());
+            P2PNetwork.Initialize(new P2PFacepunchService());
+            P2PNetwork.clientConnected += (connection) =>
+            {
+                if (!networkPlayers.ContainsKey(connection.guid))
+                {
+                    var player = Instantiate(networkPlayerPrefab);
+                    networkPlayers.Add(connection.guid, player);
+                }
+            };
+            P2PNetwork.clientDisconnected += P2PNetwork_clientDisconnected;
+            //P2PNetwork.
             P2PNetwork.messageHandlers.Add(69, HandleMovePacket);
             Instance = this;
             DontDestroyOnLoad(gameObject);
+        }
+
+        private void P2PNetwork_clientDisconnected(P2PConnection obj)
+        {
+            if (networkPlayers.ContainsKey(obj.guid))
+            {
+                Destroy(networkPlayers[obj.guid].gameObject);
+                networkPlayers.Remove(obj.guid);
+            }
         }
 
         private void SteamMatchmaking_OnLobbyEntered(Steamworks.Data.Lobby obj)
@@ -40,7 +59,7 @@ namespace Networking
         {
             if(GUILayout.Button("Host")) HostGame();
             address = GUILayout.TextField(address);
-            if (GUILayout.Button("Connect")) P2PNetwork.Connect(address);
+            if (GUILayout.Button("Connect")) P2PNetwork.JoinRoom(address);
 
             GUILayout.TextField(lobbyId);
             GUILayout.Label("NetId" + netInstanceId);
@@ -54,7 +73,7 @@ namespace Networking
         }
 
         public void HostGame() {
-            P2PNetwork.InitializeSession();
+            P2PNetwork.CreateRoom();
         }
         private string netInstanceId;
         NetDataWriter writer = new();
@@ -62,11 +81,11 @@ namespace Networking
             if (P2PNetwork.isHost)
             {
                 netInstanceId = GetInstanceID().ToString();
-                P2PNetwork.SetSessionData("net", netInstanceId);
+                P2PNetwork.SetRoomData("net", netInstanceId);
             }
             else
             {
-                netInstanceId = P2PNetwork.GetSessionData("net");
+                netInstanceId = P2PNetwork.GetRoomData("net");
             }
             if (P2PNetwork.isConnected) {
                 P2PNetwork.Poll();
@@ -78,13 +97,11 @@ namespace Networking
         }
 
         public static void HandleMovePacket(P2PConnection sender, int messageId, NetDataReader stream) {
-            var pos = stream.GetVector3();
-
-            if (!Instance.networkPlayers.ContainsKey(sender.guid)) {
-                Instance.networkPlayers.Add(sender.guid, Instantiate(Instance.networkPlayerPrefab));
+            if (!Instance.networkPlayers.ContainsKey(sender.guid))
+            {
                 return;
             }
-
+            var pos = stream.GetVector3();
             var player = Instance.networkPlayers[sender.guid];
             player.transform.position = pos;
         }

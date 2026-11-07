@@ -1065,7 +1065,7 @@
         </member>
         <member name="M:LiteNetLib.LiteNetManager.Connect(System.String,System.Int32,System.String)">
             <summary>
-            Connect to remote host
+            JoinRoom to remote host
             </summary>
             <param name="address">Server IP or hostname</param>
             <param name="port">Server Port</param>
@@ -1075,7 +1075,7 @@
         </member>
         <member name="M:LiteNetLib.LiteNetManager.Connect(System.String,System.Int32,LiteNetLib.Utils.NetDataWriter)">
             <summary>
-            Connect to remote host
+            JoinRoom to remote host
             </summary>
             <param name="address">Server IP or hostname</param>
             <param name="port">Server Port</param>
@@ -1085,7 +1085,7 @@
         </member>
         <member name="M:LiteNetLib.LiteNetManager.Connect(System.Net.IPEndPoint,System.String)">
             <summary>
-            Connect to remote host
+            JoinRoom to remote host
             </summary>
             <param name="target">Server end point (ip and port)</param>
             <param name="key">Connection key</param>
@@ -1094,7 +1094,7 @@
         </member>
         <member name="M:LiteNetLib.LiteNetManager.Connect(System.Net.IPEndPoint,LiteNetLib.Utils.NetDataWriter)">
             <summary>
-            Connect to remote host
+            JoinRoom to remote host
             </summary>
             <param name="target">Server end point (ip and port)</param>
             <param name="connectionData">Additional data for remote peer</param>
@@ -1103,7 +1103,7 @@
         </member>
         <member name="M:LiteNetLib.LiteNetManager.Connect(System.Net.IPEndPoint,System.ReadOnlySpan{System.Byte})">
             <summary>
-            Connect to remote host
+            JoinRoom to remote host
             </summary>
             <param name="target">Server end point (ip and port)</param>
             <param name="connectionData">Additional data for remote peer</param>
@@ -2006,7 +2006,7 @@
         </member>
         <member name="M:LiteNetLib.NetManager.Connect(System.String,System.Int32,System.String)">
             <summary>
-            Connect to remote host
+            JoinRoom to remote host
             </summary>
             <param name="address">Server IP or hostname</param>
             <param name="port">Server Port</param>
@@ -2016,7 +2016,7 @@
         </member>
         <member name="M:LiteNetLib.NetManager.Connect(System.String,System.Int32,LiteNetLib.Utils.NetDataWriter)">
             <summary>
-            Connect to remote host
+            JoinRoom to remote host
             </summary>
             <param name="address">Server IP or hostname</param>
             <param name="port">Server Port</param>
@@ -2026,7 +2026,7 @@
         </member>
         <member name="M:LiteNetLib.NetManager.Connect(System.Net.IPEndPoint,System.String)">
             <summary>
-            Connect to remote host
+            JoinRoom to remote host
             </summary>
             <param name="target">Server end point (ip and port)</param>
             <param name="key">Connection key</param>
@@ -2035,7 +2035,7 @@
         </member>
         <member name="M:LiteNetLib.NetManager.Connect(System.Net.IPEndPoint,LiteNetLib.Utils.NetDataWriter)">
             <summary>
-            Connect to remote host
+            JoinRoom to remote host
             </summary>
             <param name="target">Server end point (ip and port)</param>
             <param name="connectionData">Additional data for remote peer</param>
@@ -2044,7 +2044,7 @@
         </member>
         <member name="M:LiteNetLib.NetManager.Connect(System.Net.IPEndPoint,System.ReadOnlySpan{System.Byte})">
             <summary>
-            Connect to remote host
+            JoinRoom to remote host
             </summary>
             <param name="target">Server end point (ip and port)</param>
             <param name="connectionData">Additional data for remote peer</param>
@@ -3688,7 +3688,7 @@
             Gets or sets SNTP packet mode, i.e. whether this is client or server packet.
             </summary>
             <value>
-            SNTP packet mode. Default is <see cref="F:LiteNetLib.Utils.NtpMode.Client" /> in newly created packets.
+            SNTP packet mode. Default is <see cref="F:LiteNetLib.Utils.NtpMode.Client" /> in newly createdRoom packets.
             Server reply should have this property set to <see cref="F:LiteNetLib.Utils.NtpMode.Server" />.
             </value>
         </member>
@@ -4088,24 +4088,13 @@
         </member>
         <member name="F:REP2P.P2PNetwork.connections">
             <summary>
-            All the Connections in the session
+            All the Connections in the room
             </summary>
         </member>
-        <member name="P:REP2P.P2PNetwork.connection">
+        <member name="P:REP2P.P2PNetwork.localConnection">
             <summary>
             Your local connection
             </summary>
-        </member>
-        <member name="P:REP2P.P2PNetwork.debug">
-            <summary>
-            Allow Debug Logs
-            </summary>
-        </member>
-        <member name="M:REP2P.P2PNetwork.Initialize(REP2P.P2PTransport)">
-            <summary>
-            Initialize the P2P Network
-            </summary>
-            <param name="transport">Your selected transport</param>
         </member>
         <member name="P:REP2P.P2PNetwork.isHost">
             <summary>
@@ -4124,22 +4113,58 @@
             Message Handlers
             </summary>
         </member>
-        <member name="M:REP2P.P2PNetwork.InitializeSession(System.Int32,REP2P.P2PVisibility)">
+        <member name="P:REP2P.P2PNetwork.debug">
             <summary>
-            Creates session
+            Allow Debug Logs
             </summary>
-            <param name="maxConnections">Max Connections to the session</param>
-            <param name="visibility">the privacy of that session</param>
         </member>
-        <member name="M:REP2P.P2PNetwork.Connect(System.String)">
+        <member name="M:REP2P.P2PNetwork.Initialize(REP2P.P2PService)">
             <summary>
-            Connects to a session
+            Initialize the P2P Network
             </summary>
-            <param name="address">session address</param>
+            <param name="transport">Your selected transport</param>
+        </member>
+        <member name="E:REP2P.P2PNetwork.createdRoom">
+            <summary>
+            Executes when a room is created
+            </summary>
+        </member>
+        <member name="E:REP2P.P2PNetwork.disconnected">
+            <summary>
+            Executes when disconnected
+            </summary>
+        </member>
+        <member name="E:REP2P.P2PNetwork.joinedRoom">
+            <summary>
+            Executes when you joined a room
+            </summary>
+        </member>
+        <member name="E:REP2P.P2PNetwork.clientConnected">
+            <summary>
+            Executes when client connected
+            </summary>
+        </member>
+        <member name="E:REP2P.P2PNetwork.clientDisconnected">
+            <summary>
+            Executes when client disconnected
+            </summary>
+        </member>
+        <member name="M:REP2P.P2PNetwork.CreateRoom(System.Int32,REP2P.P2PVisibility)">
+            <summary>
+            Creates Room with the given max connections and visibility
+            </summary>
+            <param name="maxConnections">Max Connections to the room</param>
+            <param name="visibility">the privacy of that room</param>
+        </member>
+        <member name="M:REP2P.P2PNetwork.JoinRoom(System.String)">
+            <summary>
+            Connects to a room
+            </summary>
+            <param name="address">room address</param>
         </member>
         <member name="M:REP2P.P2PNetwork.SendToAll(System.Int32,LiteNetLib.Utils.NetDataWriter,REP2P.P2PSendMode,System.Boolean)">
             <summary>
-            Send a message to every one in the session
+            Send a message to every one in the room
             </summary>
             <param name="messageId">your message id</param>
             <param name="stream">your data stream</param>
@@ -4166,16 +4191,16 @@
             <param name="sendMode">how reliable</param>
             <param name="shouldRelease">dispose after use</param>
         </member>
-        <member name="M:REP2P.P2PNetwork.SetSessionData(System.String,System.String)">
+        <member name="M:REP2P.P2PNetwork.SetRoomData(System.String,System.String)">
             <summary>
-            Sets the data for the current session
+            Sets the data for the current room
             </summary>
             <param name="key">the key of the data</param>
             <param name="value">the value of the data</param>
         </member>
-        <member name="M:REP2P.P2PNetwork.GetSessionData(System.String)">
+        <member name="M:REP2P.P2PNetwork.GetRoomData(System.String)">
             <summary>
-            Retrieves current session data
+            Retrieves current room data
             </summary>
             <param name="key">the key of the data</param>
         </member>
@@ -4186,7 +4211,7 @@
         </member>
         <member name="M:REP2P.P2PNetwork.Disconnect">
             <summary>
-            Disconnects from current session
+            Disconnects from current room
             </summary>
         </member>
         <member name="T:REP2P.P2PSendMode">
@@ -4204,94 +4229,94 @@
             faster but no guarantees
             </summary>
         </member>
-        <member name="T:REP2P.P2PTransport">
+        <member name="T:REP2P.P2PService">
             <summary>
             P2P Transport template
             </summary>
         </member>
-        <member name="E:REP2P.P2PTransport.created">
+        <member name="E:REP2P.P2PService.createdRoom">
             <summary>
-            invokes when a session starts
+            invokes when a room starts
             </summary>
         </member>
-        <member name="E:REP2P.P2PTransport.joined">
+        <member name="E:REP2P.P2PService.joinedRoom">
             <summary>
             invokes when connected
             </summary>
         </member>
-        <member name="E:REP2P.P2PTransport.disconnected">
+        <member name="E:REP2P.P2PService.disconnected">
             <summary>
             invokes when disconnected
             </summary>
         </member>
-        <member name="E:REP2P.P2PTransport.connectionFailed">
+        <member name="E:REP2P.P2PService.connectionFailed">
             <summary>
             invokes when connection fails
             </summary>
         </member>
-        <member name="E:REP2P.P2PTransport.clientConnected">
+        <member name="E:REP2P.P2PService.clientConnected">
             <summary>
             invokes when remote client connected
             </summary>
         </member>
-        <member name="E:REP2P.P2PTransport.clientDisconnected">
+        <member name="E:REP2P.P2PService.clientDisconnected">
             <summary>
             invokes when remote client disconnected
             </summary>
         </member>
-        <member name="E:REP2P.P2PTransport.dataReceived">
+        <member name="E:REP2P.P2PService.dataReceived">
             <summary>
             invokes when data received
             </summary>
         </member>
-        <member name="P:REP2P.P2PTransport.isHost">
+        <member name="P:REP2P.P2PService.isHost">
             <summary>
             are you host?
             </summary>
         </member>
-        <member name="P:REP2P.P2PTransport.isConnected">
+        <member name="P:REP2P.P2PService.isConnected">
             <summary>
             are you connected
             </summary>
         </member>
-        <member name="P:REP2P.P2PTransport.host">
+        <member name="P:REP2P.P2PService.host">
             <summary>
             host's connection
             </summary>
         </member>
-        <member name="M:REP2P.P2PTransport.InitializeSession(System.Int32,REP2P.P2PVisibility)">
+        <member name="M:REP2P.P2PService.CreateRoom(System.Int32,REP2P.P2PVisibility)">
             <summary>
             starts the game
             </summary>
             <param name="maxConnections">max connections</param>
             <param name="visibility">how visible</param>
         </member>
-        <member name="M:REP2P.P2PTransport.Connect(System.String)">
+        <member name="M:REP2P.P2PService.JoinRoom(System.String)">
             <summary>
-            Joins a session and returns an error if occured
+            Joins a room and returns an error if occured
             </summary>
             <param name="address">end address</param>
         </member>
-        <member name="M:REP2P.P2PTransport.Poll">
+        <member name="M:REP2P.P2PService.Poll">
             <summary>
             Updates the network transport state
             </summary>
         </member>
-        <member name="M:REP2P.P2PTransport.Disconnect">
+        <member name="M:REP2P.P2PService.Disconnect">
             <summary>
-            Disconnects you from the session
+            Disconnects you from the room
             </summary>
         </member>
-        <member name="M:REP2P.P2PTransport.SetSessionData(System.String,System.String)">
+        <member name="M:REP2P.P2PService.SetRoomData(System.String,System.String)">
             <summary>
-            Sets a data for the session
+            Sets a data for the room
             </summary>
             <param name="key">the key of the data</param>
             <param name="value">the value of the data</param>
         </member>
-        <member name="M:REP2P.P2PTransport.GetSessionData(System.String)">
+        <member name="M:REP2P.P2PService.GetRoomData(System.String)">
             <summary>
-            Returns the data from the session
+            Returns the data from the room
             </summary>
             <param name="key">the key of the data</param>
         </member>

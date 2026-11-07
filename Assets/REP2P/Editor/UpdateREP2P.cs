@@ -5,9 +5,9 @@ using UnityEngine;
 public class UpdateREP2P
 {
     public const string LOCAL_REP2P_PATH = "Assets/REP2P/";
-    public const string REMOTE_REP2P_PATH = "D:\\UnityProjects\\Unity P2P Research\\Core\\REP2P\\REP2P\\bin\\Release\\netstandard2.1/";
-    public const string REMOTE_REP2P_STEAMWORKSNET_PATH = "D:\\UnityProjects\\Unity P2P Research\\Core\\REP2P\\REP2P.SteamworksNET\\bin\\Release\\netstandard2.1/";
-    public const string REMOTE_REP2P_FACEPUNCHSTEAMWORKS_PATH = "D:\\UnityProjects\\Unity P2P Research\\Core\\REP2P\\REP2P.Facepunch.Steamworks\\bin\\Release\\netstandard2.1/";
+    public const string REMOTE_REP2P_PATH = "C:\\Users\\cheesy\\Documents\\Unity\\REP2P\\REP2P\\bin\\Release\\netstandard2.1/";
+    public const string REMOTE_REP2P_STEAMWORKSNET_PATH = "C:\\Users\\cheesy\\Documents\\Unity\\REP2P\\REP2P.SteamworksNET\\bin\\Release\\netstandard2.1/";
+    public const string REMOTE_REP2P_FACEPUNCHSTEAMWORKS_PATH = "C:\\Users\\cheesy\\Documents\\Unity\\REP2P\\REP2P.Facepunch.Steamworks\\bin\\Release\\netstandard2.1/";
     const string REP2Pdll = "REP2P.dll";
     const string REP2Pxml = "REP2P.xml";
     const string REP2PSteamworksNETdll = "REP2P.SteamworksNET.dll";
@@ -18,6 +18,13 @@ public class UpdateREP2P
         File.Copy(REMOTE_REP2P_PATH + REP2Pdll, LOCAL_REP2P_PATH + REP2Pdll, true);
         File.Copy(REMOTE_REP2P_PATH + REP2Pxml, LOCAL_REP2P_PATH + REP2Pxml, true);
         EditorUtility.RequestScriptReload();
+    }
+    [MenuItem("Tools/Update/REP2P (All)")]
+    public static void PerformUpdateAll()
+    {
+        PerformUpdate();
+        PerformSteamworksNETUpdate();
+        PerformFacepunchSteamworksUpdate();
     }
     [MenuItem("Tools/Update/REP2P Extras/Steamworks.NET")]
     public static void PerformSteamworksNETUpdate()
